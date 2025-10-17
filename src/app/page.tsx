@@ -278,6 +278,23 @@ export default function Home() {
                       >
                         ↓
                       </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          // remove this item and revoke its preview
+                          setSelectedFiles((prev) => {
+                            const next = prev.filter((p) => p.id !== item.id);
+                            return next;
+                          });
+                          try {
+                            URL.revokeObjectURL(item.previewUrl);
+                          } catch {}
+                        }}
+                        aria-label={`Remove ${item.file.name}`}
+                        className="rounded border px-2 py-1 text-sm text-red-600 hover:bg-red-50"
+                      >
+                        削除
+                      </button>
                     </div>
                   </div>
                   {item.previewUrl && (
