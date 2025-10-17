@@ -1,36 +1,91 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# PDFファイル結合ツール
 
-## Getting Started
+複数のPDFファイルをブラウザ上で簡単に結合し、1つのPDFファイルとしてダウンロードできるNext.js製Webアプリケーションです。ファイルのドラッグ&ドロップ、プレビュー表示、順序変更など直感的な操作で複数のPDFを効率的に結合できます。
 
-First, run the development server:
+## クイックスタート (Try it)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+1. 依存関係をインストール:
+   ```bash
+   npm install
+   ```
+2. 開発サーバーを起動:
+   ```bash
+   npm run dev
+   ```
+3. ブラウザで [http://localhost:3000](http://localhost:3000) にアクセス
+
+静的サイトとして出力したい場合は `npm run build:static` を実行すると `out/` 以下に成果物が作成されます。
+
+## 主な機能
+
+• **ドラッグ&ドロップ対応**: PDFファイルを画面上にドラッグするだけで簡単にアップロード（複数ファイル同時対応）
+• **リアルタイムプレビュー**: 選択したPDFファイルの内容をブラウザ上で即座にプレビュー表示
+• **ファイル順序変更**: 結合前にファイルの順序を上下ボタンで自由に調整可能
+• **個別ファイル削除**: 不要なファイルを選択後に個別削除できる機能
+• **結合処理**: pdf-libライブラリを使用した高品質なPDFファイル結合
+• **ダウンロード機能**: 結合されたPDFファイルをワンクリックでダウンロード
+• **エラーハンドリング**: ファイル形式エラーや処理エラーの分かりやすい表示
+
+## 使い方の流れ
+
+1. 画面中央のファイル選択エリアにPDFファイルをドラッグ&ドロップします（複数同時可）
+2. または「ファイルを選択」ボタンから従来のファイル選択ダイアログを使用
+3. アップロードされたファイルの一覧とプレビューが表示されます
+4. 必要に応じて上下ボタンでファイルの順序を調整します
+5. 不要なファイルがあれば「削除」ボタンで除外します
+6. 「PDFを結合する」ボタンをクリックして結合処理を実行
+7. 結合が完了すると結合済みPDFのプレビューとダウンロードリンクが表示されます
+
+## 技術スタック
+
+• **フレームワーク**: Next.js 15 (App Router)
+• **言語**: TypeScript 5, React 19
+• **PDF処理**: pdf-lib 1.17 でクライアントサイドでのPDF結合
+• **スタイル**: Tailwind CSS 4（`@tailwindcss/postcss` 経由）
+• **開発ツール**: Biome 2 (Lint/Format), cross-env
+
+## ディレクトリ構造
+
+```
+src/
+├── app/
+│   ├── layout.tsx          # アプリ全体のレイアウト
+│   ├── page.tsx            # PDF結合のメインページ
+│   └── globals.css         # グローバルスタイル
+└── [その他設定ファイル]
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## ビルドと開発の詳細
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### npm スクリプト
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+• `npm run dev` — 開発サーバーを起動 ([http://localhost:3000](http://localhost:3000))
+• `npm run build` — SSR対応の本番ビルドを生成
+• `npm run build:static` — 静的エクスポート用ビルド（`BUILD_MODE=static`）を生成
+• `npm run start` — `npm run build` 後のアプリを起動
+• `npm run lint` — Biome による静的解析
+• `npm run format` — Biome によるコードフォーマット
 
-## Learn More
+### 静的エクスポート
 
-To learn more about Next.js, take a look at the following resources:
+GitHub Pages などの静的ホスティング向けに、以下のコマンドで `out/` フォルダを生成できます：
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm run build:static
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+生成されたファイルは `out/` に配置され、`python3 -m http.server` 等で簡易的に確認できます。
 
-## Deploy on Vercel
+### 推奨ワークフロー
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. `npm run lint` でフォーマット・Lint を実行
+2. `npm run build` または `npm run build:static` でビルド検証
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 対応ファイル形式
+
+• **入力**: PDF ファイル（`.pdf`）のみ
+• **出力**: 結合されたPDFファイル（`merged.pdf`）
+
+## ライセンス
+
+現時点で本リポジトリには明示的なライセンスが含まれていません。
