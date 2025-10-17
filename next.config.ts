@@ -1,7 +1,17 @@
 import type { NextConfig } from "next";
 
+const isStatic = process.env.BUILD_MODE === "static";
+
 const nextConfig: NextConfig = {
-  /* config options here */
+  ...(isStatic && {
+    output: "export",
+    trailingSlash: true,
+    basePath: "/combine-pdf-files",
+    assetPrefix: "/combine-pdf-files",
+    images: {
+      unoptimized: true,
+    },
+  }),
 };
 
 export default nextConfig;
