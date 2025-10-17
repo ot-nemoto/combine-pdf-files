@@ -4,8 +4,9 @@ import { useEffect, useRef, useState } from "react";
 
 export default function Home() {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  type SelectedItem = { id: string; file: File; previewUrl: string };
+  const [selectedFiles, setSelectedFiles] = useState<SelectedItem[]>([]);
+  const selectedFilesRef = useRef<SelectedItem[]>([]);
   const [isMerging, setIsMerging] = useState(false);
   const [mergedUrl, setMergedUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -13,12 +14,21 @@ export default function Home() {
   const dragCounterRef = useRef(0);
 
   useEffect(() => {
+    // keep a ref of current selectedFiles so the unmount cleanup can use it
+    selectedFilesRef.current = selectedFiles;
+  }, [selectedFiles]);
+
+  useEffect(() => {
+    // Revoke preview URLs only on unmount.
+    // We already revoke replaced previews at the time we replace them in handlers.
     return () => {
-      previewUrls.forEach((url) => {
-        URL.revokeObjectURL(url);
+      selectedFilesRef.current.forEach((item) => {
+        try {
+          URL.revokeObjectURL(item.previewUrl);
+        } catch {}
       });
     };
-  }, [previewUrls]);
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -43,8 +53,8 @@ export default function Home() {
       const { PDFDocument } = await import("pdf-lib");
 
       const loadedDocs = await Promise.all(
-        selectedFiles.map(async (file) => {
-          const arrayBuffer = await file.arrayBuffer();
+        selectedFiles.map(async (item) => {
+          const arrayBuffer = await item.file.arrayBuffer();
           return PDFDocument.load(arrayBuffer);
         }),
       );
@@ -84,18 +94,26 @@ export default function Home() {
 
     const nextFiles = Array.from(files);
 
-    setSelectedFiles(nextFiles);
+    // create SelectedItem array with stable ids and preview urls
+    setSelectedFiles((prev) => {
+      // revoke previous previews
+      prev.forEach((p) => {
+        try {
+          URL.revokeObjectURL(p.previewUrl);
+        } catch {}
+      });
+      const items = nextFiles.map((file, i) => ({
+        id: `${Date.now()}-${i}`,
+        file,
+        previewUrl: URL.createObjectURL(file),
+      }));
+      return items;
+    });
     setMergedUrl((previous) => {
       if (previous) URL.revokeObjectURL(previous);
       return null;
     });
     setError(null);
-    setPreviewUrls((previousUrls) => {
-      previousUrls.forEach((url) => {
-        URL.revokeObjectURL(url);
-      });
-      return nextFiles.map((file) => URL.createObjectURL(file));
-    });
   }
 
   // ドラッグ＆ドロップのハンドラ（ドラッグ入れ子問題を dragCounter で安定化）
@@ -113,17 +131,44 @@ export default function Home() {
     );
     if (files.length === 0) return;
 
-    setSelectedFiles(files);
+    setSelectedFiles((prev) => {
+      prev.forEach((p) => {
+        try {
+          URL.revokeObjectURL(p.previewUrl);
+        } catch {}
+      });
+      return files.map((file, i) => ({
+        id: `${Date.now()}-${i}`,
+        file,
+        previewUrl: URL.createObjectURL(file),
+      }));
+    });
     setMergedUrl((previous) => {
       if (previous) URL.revokeObjectURL(previous);
       return null;
     });
     setError(null);
-    setPreviewUrls((previousUrls) => {
-      previousUrls.forEach((url) => {
-        URL.revokeObjectURL(url);
-      });
-      return files.map((file) => URL.createObjectURL(file));
+  }
+
+  function moveUp(index: number) {
+    if (index <= 0) return;
+    setSelectedFiles((prev) => {
+      const next = prev.slice();
+      const tmp = next[index - 1];
+      next[index - 1] = next[index];
+      next[index] = tmp;
+      return next;
+    });
+  }
+
+  function moveDown(index: number) {
+    setSelectedFiles((prev) => {
+      if (index >= prev.length - 1) return prev;
+      const next = prev.slice();
+      const tmp = next[index + 1];
+      next[index + 1] = next[index];
+      next[index] = tmp;
+      return next;
     });
   }
 
@@ -205,18 +250,39 @@ export default function Home() {
           <section className="w-full max-w-xl rounded-lg border border-dashed border-neutral-300 p-4 text-sm dark:border-neutral-700">
             <h2 className="mb-3 text-base font-semibold">選択中のPDF</h2>
             <ul className="space-y-2">
-              {selectedFiles.map((file, index) => (
-                <li
-                  key={`${file.name}-${file.lastModified}`}
-                  className="flex flex-col gap-1"
-                >
-                  <span className="font-medium">{file.name}</span>
-                  <span className="text-xs text-neutral-500">
-                    {Math.round(file.size / 1024)} KB
-                  </span>
-                  {previewUrls[index] && (
+              {selectedFiles.map((item, index) => (
+                <li key={item.id} className="flex flex-col gap-1">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="font-medium">{item.file.name}</span>
+                      <div className="text-xs text-neutral-500">
+                        {Math.round(item.file.size / 1024)} KB
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => moveUp(index)}
+                        disabled={index === 0}
+                        aria-label={`Move ${item.file.name} up`}
+                        className="rounded border px-2 py-1 text-sm disabled:opacity-50"
+                      >
+                        ↑
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => moveDown(index)}
+                        disabled={index === selectedFiles.length - 1}
+                        aria-label={`Move ${item.file.name} down`}
+                        className="rounded border px-2 py-1 text-sm disabled:opacity-50"
+                      >
+                        ↓
+                      </button>
+                    </div>
+                  </div>
+                  {item.previewUrl && (
                     <iframe
-                      src={previewUrls[index]}
+                      src={item.previewUrl}
                       title={`PDF preview ${index + 1}`}
                       className="h-48 w-full rounded border border-neutral-200 dark:border-neutral-800"
                     />
