@@ -1,3 +1,6 @@
+[![Deploy to GitHub Pages](https://github.com/ot-nemoto/combine-pdf-files/actions/workflows/deploy.yml/badge.svg)](https://github.com/ot-nemoto/combine-pdf-files/actions/workflows/deploy.yml)
+[![Dependabot Updates](https://github.com/ot-nemoto/combine-pdf-files/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/ot-nemoto/combine-pdf-files/actions/workflows/dependabot/dependabot-updates/)
+
 # PDFファイル結合ツール
 
 複数のPDFファイルをブラウザ上で簡単に結合し、1つのPDFファイルとしてダウンロードできるNext.js製Webアプリケーションです。ファイルのドラッグ&ドロップ、プレビュー表示、順序変更など直感的な操作で複数のPDFを効率的に結合できます。
