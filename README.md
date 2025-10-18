@@ -1,7 +1,8 @@
 # PDFファイル結合ツール
 
-[![Deploy to GitHub Pages](https://github.com/ot-nemoto/combine-pdf-files/actions/workflows/deploy.yml/badge.svg)](https://github.com/ot-nemoto/combine-pdf-files/actions/workflows/deploy.yml)
-[![Dependabot Updates](https://github.com/ot-nemoto/combine-pdf-files/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/ot-nemoto/combine-pdf-files/actions/workflows/dependabot/dependabot-updates/)
+[![Pages](https://github.com/ot-nemoto/combine-pdf-files/actions/workflows/deploy.yml/badge.svg)](https://github.com/ot-nemoto/combine-pdf-files/actions/workflows/deploy.yml)
+[![Dependabot](https://github.com/ot-nemoto/combine-pdf-files/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/ot-nemoto/combine-pdf-files/actions/workflows/dependabot/dependabot-updates/)
+[![License](https://img.shields.io/github/license/ot-nemoto/combine-pdf-files)](https://github.com/ot-nemoto/combine-pdf-files/blob/master/LICENSE)
 
 複数のPDFファイルをブラウザ上で簡単に結合し、1つのPDFファイルとしてダウンロードできるNext.js製Webアプリケーションです。ファイルのドラッグ&ドロップ、プレビュー表示、順序変更など直感的な操作で複数のPDFを効率的に結合できます。
 
@@ -21,13 +22,13 @@
 
 ## 主な機能
 
-• **ドラッグ&ドロップ対応**: PDFファイルを画面上にドラッグするだけで簡単にアップロード（複数ファイル同時対応）
-• **リアルタイムプレビュー**: 選択したPDFファイルの内容をブラウザ上で即座にプレビュー表示
-• **ファイル順序変更**: 結合前にファイルの順序を上下ボタンで自由に調整可能
-• **個別ファイル削除**: 不要なファイルを選択後に個別削除できる機能
-• **結合処理**: pdf-libライブラリを使用した高品質なPDFファイル結合
-• **ダウンロード機能**: 結合されたPDFファイルをワンクリックでダウンロード
-• **エラーハンドリング**: ファイル形式エラーや処理エラーの分かりやすい表示
+- **ドラッグ&ドロップ対応**: PDFファイルを画面上にドラッグするだけで簡単にアップロード（複数ファイル同時対応）
+- **リアルタイムプレビュー**: 選択したPDFファイルの内容をブラウザ上で即座にプレビュー表示
+- **ファイル順序変更**: 結合前にファイルの順序を上下ボタンで自由に調整可能
+- **個別ファイル削除**: 不要なファイルを選択後に個別削除できる機能
+- **結合処理**: pdf-libライブラリを使用した高品質なPDFファイル結合
+- **ダウンロード機能**: 結合されたPDFファイルをワンクリックでダウンロード
+- **エラーハンドリング**: ファイル形式エラーや処理エラーの分かりやすい表示
 
 ## 使い方の流れ
 
@@ -41,33 +42,22 @@
 
 ## 技術スタック
 
-• **フレームワーク**: Next.js 15 (App Router)
-• **言語**: TypeScript 5, React 19
-• **PDF処理**: pdf-lib 1.17 でクライアントサイドでのPDF結合
-• **スタイル**: Tailwind CSS 4（`@tailwindcss/postcss` 経由）
-• **開発ツール**: Biome 2 (Lint/Format), cross-env
-
-## ディレクトリ構造
-
-```
-src/
-├── app/
-│   ├── layout.tsx          # アプリ全体のレイアウト
-│   ├── page.tsx            # PDF結合のメインページ
-│   └── globals.css         # グローバルスタイル
-└── [その他設定ファイル]
-```
+- **フレームワーク**: Next.js 15 (App Router)
+- **言語**: TypeScript 5, React 19
+- **PDF処理**: pdf-lib 1.17 でクライアントサイドでのPDF結合
+- **スタイル**: Tailwind CSS 4（`@tailwindcss/postcss` 経由）
+- **開発ツール**: Biome 2 (Lint/Format), cross-env
 
 ## ビルドと開発の詳細
 
 ### npm スクリプト
 
-• `npm run dev` — 開発サーバーを起動 ([http://localhost:3000](http://localhost:3000))
-• `npm run build` — SSR対応の本番ビルドを生成
-• `npm run build:static` — 静的エクスポート用ビルド（`BUILD_MODE=static`）を生成
-• `npm run start` — `npm run build` 後のアプリを起動
-• `npm run lint` — Biome による静的解析
-• `npm run format` — Biome によるコードフォーマット
+- `npm run dev` — 開発サーバーを起動 ([http://localhost:3000](http://localhost:3000))
+- `npm run build` — SSR対応の本番ビルドを生成
+- `npm run build:static` — 静的エクスポート用ビルド（`BUILD_MODE=static`）を生成
+- `npm run start` — `npm run build` 後のアプリを起動
+- `npm run lint` — Biome による静的解析
+- `npm run format` — Biome によるコードフォーマット
 
 ### 静的エクスポート
 
@@ -86,9 +76,5 @@ npm run build:static
 
 ## 対応ファイル形式
 
-• **入力**: PDF ファイル（`.pdf`）のみ
-• **出力**: 結合されたPDFファイル（`merged.pdf`）
-
-## ライセンス
-
-現時点で本リポジトリには明示的なライセンスが含まれていません。
+- **入力**: PDF ファイル（`.pdf`）のみ
+- **出力**: 結合されたPDFファイル（`merged.pdf`）
