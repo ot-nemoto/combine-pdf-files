@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { usePdfPages } from "../hooks/usePdfPages";
 
 describe("usePdfPages", () => {
+  // フックが初期化時に空の状態で開始することを確認
   it("should initialize with empty state", () => {
     const { result } = renderHook(() => usePdfPages());
 
@@ -14,6 +15,7 @@ describe("usePdfPages", () => {
   });
 
   describe("addPagesFromFiles", () => {
+    // PDFファイルからページを追加する機能をテスト
     it("should add pages from PDF files", async () => {
       const { result } = renderHook(() => usePdfPages());
 
@@ -23,7 +25,7 @@ describe("usePdfPages", () => {
       pdfDoc.addPage();
       const pdfBytes = await pdfDoc.save();
 
-      const file = new File([pdfBytes], "test.pdf", {
+      const file = new File([pdfBytes as BlobPart], "test.pdf", {
         type: "application/pdf",
       });
 
@@ -45,6 +47,7 @@ describe("usePdfPages", () => {
   });
 
   describe("page operations", () => {
+    // ページの上下移動、削除、回転などの操作をテスト
     it("should move page up", async () => {
       const { result } = renderHook(() => usePdfPages());
 
@@ -54,7 +57,7 @@ describe("usePdfPages", () => {
       pdfDoc.addPage();
       const pdfBytes = await pdfDoc.save();
 
-      const file = new File([pdfBytes], "test.pdf", {
+      const file = new File([pdfBytes as BlobPart], "test.pdf", {
         type: "application/pdf",
       });
 
@@ -77,6 +80,7 @@ describe("usePdfPages", () => {
       expect(result.current.selectedPages[1].id).toBe(firstPageId);
     });
 
+    // ページを下へ移動する操作が正しく機能することを確認
     it("should move page down", async () => {
       const { result } = renderHook(() => usePdfPages());
 
@@ -85,7 +89,7 @@ describe("usePdfPages", () => {
       pdfDoc.addPage();
       const pdfBytes = await pdfDoc.save();
 
-      const file = new File([pdfBytes], "test.pdf", {
+      const file = new File([pdfBytes as BlobPart], "test.pdf", {
         type: "application/pdf",
       });
 
@@ -108,6 +112,7 @@ describe("usePdfPages", () => {
       expect(result.current.selectedPages[1].id).toBe(firstPageId);
     });
 
+    // ページを削除する操作が正しく機能することを確認
     it("should delete page", async () => {
       const { result } = renderHook(() => usePdfPages());
 
@@ -116,7 +121,7 @@ describe("usePdfPages", () => {
       pdfDoc.addPage();
       const pdfBytes = await pdfDoc.save();
 
-      const file = new File([pdfBytes], "test.pdf", {
+      const file = new File([pdfBytes as BlobPart], "test.pdf", {
         type: "application/pdf",
       });
 
@@ -135,6 +140,7 @@ describe("usePdfPages", () => {
       expect(result.current.selectedPages.length).toBe(1);
     });
 
+    // ページを時計回りに回転させる操作が正しく機能することを確認（90°ずつ回転）
     it("should rotate page clockwise", async () => {
       const { result } = renderHook(() => usePdfPages());
 
@@ -142,7 +148,7 @@ describe("usePdfPages", () => {
       pdfDoc.addPage();
       const pdfBytes = await pdfDoc.save();
 
-      const file = new File([pdfBytes], "test.pdf", {
+      const file = new File([pdfBytes as BlobPart], "test.pdf", {
         type: "application/pdf",
       });
 
@@ -169,6 +175,7 @@ describe("usePdfPages", () => {
       expect(result.current.selectedPages[0].rotation).toBe(180);
     });
 
+    // ページを反時計回りに回転させる操作が正しく機能することを確認
     it("should rotate page counter-clockwise", async () => {
       const { result } = renderHook(() => usePdfPages());
 
@@ -176,7 +183,7 @@ describe("usePdfPages", () => {
       pdfDoc.addPage();
       const pdfBytes = await pdfDoc.save();
 
-      const file = new File([pdfBytes], "test.pdf", {
+      const file = new File([pdfBytes as BlobPart], "test.pdf", {
         type: "application/pdf",
       });
 
@@ -197,6 +204,7 @@ describe("usePdfPages", () => {
   });
 
   describe("mergePages", () => {
+    // 複数のページを1つのPDFにマージする機能をテスト
     it("should merge pages successfully", async () => {
       const { result } = renderHook(() => usePdfPages());
 
@@ -205,7 +213,7 @@ describe("usePdfPages", () => {
       pdfDoc.addPage();
       const pdfBytes = await pdfDoc.save();
 
-      const file = new File([pdfBytes], "test.pdf", {
+      const file = new File([pdfBytes as BlobPart], "test.pdf", {
         type: "application/pdf",
       });
 
@@ -230,6 +238,7 @@ describe("usePdfPages", () => {
       expect(result.current.error).toBeNull();
     });
 
+    // 2ページ未満の場合、マージ時にエラーが表示されることを確認
     it("should show error when less than 2 pages", async () => {
       const { result } = renderHook(() => usePdfPages());
 
@@ -237,7 +246,7 @@ describe("usePdfPages", () => {
       pdfDoc.addPage();
       const pdfBytes = await pdfDoc.save();
 
-      const file = new File([pdfBytes], "test.pdf", {
+      const file = new File([pdfBytes as BlobPart], "test.pdf", {
         type: "application/pdf",
       });
 

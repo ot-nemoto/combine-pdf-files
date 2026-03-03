@@ -20,6 +20,7 @@ describe("PageItem", () => {
     onRotateCounterClockwise: vi.fn(),
   };
 
+  // PageItem コンポーネントがページ情報（ファイル名と現在のページ番号）を正しくレンダリングすることを確認
   it("should render page information", () => {
     render(
       <PageItem page={mockPage} index={0} totalPages={3} {...mockCallbacks} />,
@@ -29,6 +30,7 @@ describe("PageItem", () => {
     expect(screen.getByText("ページ 1")).toBeInTheDocument();
   });
 
+  // ページを上へ移動するボタンをクリックしたとき、onMoveUp コールバックが呼び出されることを確認
   it("should call onMoveUp when move up button is clicked", async () => {
     const user = userEvent.setup();
     render(
@@ -41,6 +43,7 @@ describe("PageItem", () => {
     expect(mockCallbacks.onMoveUp).toHaveBeenCalled();
   });
 
+  // ページを下へ移動するボタンをクリックしたとき、onMoveDown コールバックが呼び出されることを確認
   it("should call onMoveDown when move down button is clicked", async () => {
     const user = userEvent.setup();
     render(
@@ -53,6 +56,7 @@ describe("PageItem", () => {
     expect(mockCallbacks.onMoveDown).toHaveBeenCalled();
   });
 
+  // ページを削除するボタンをクリックしたとき、onDelete コールバックが呼び出されることを確認
   it("should call onDelete when delete button is clicked", async () => {
     const user = userEvent.setup();
     render(
@@ -65,6 +69,7 @@ describe("PageItem", () => {
     expect(mockCallbacks.onDelete).toHaveBeenCalled();
   });
 
+  // ページを反時計回りに回転させるボタンをクリックしたとき、onRotateCounterClockwise コールバックが呼び出されることを確認
   it("should call onRotateCounterClockwise when counter-clockwise button is clicked", async () => {
     const user = userEvent.setup();
     render(
@@ -77,6 +82,7 @@ describe("PageItem", () => {
     expect(mockCallbacks.onRotateCounterClockwise).toHaveBeenCalled();
   });
 
+  // ページを時計回りに回転させるボタンをクリックしたとき、onRotateClockwise コールバックが呼び出されることを確認
   it("should call onRotateClockwise when clockwise button is clicked", async () => {
     const user = userEvent.setup();
     render(
@@ -89,6 +95,7 @@ describe("PageItem", () => {
     expect(mockCallbacks.onRotateClockwise).toHaveBeenCalled();
   });
 
+  // 最初のページアイテムのとき、上へ移動するボタンが無効になることを確認
   it("should disable move up button when first", () => {
     render(
       <PageItem page={mockPage} index={0} totalPages={3} {...mockCallbacks} />,
@@ -98,6 +105,7 @@ describe("PageItem", () => {
     expect(moveUpButton).toBeDisabled();
   });
 
+  // 最後のページアイテムのとき、下へ移動するボタンが無効になることを確認
   it("should disable move down button when last", () => {
     render(
       <PageItem page={mockPage} index={2} totalPages={3} {...mockCallbacks} />,
@@ -107,6 +115,7 @@ describe("PageItem", () => {
     expect(moveDownButton).toBeDisabled();
   });
 
+  // ページが回転している場合それに応じた回転指標が表示されることを確認
   it("should show rotation indicator", () => {
     const rotatedPage = { ...mockPage, rotation: 90 };
     render(

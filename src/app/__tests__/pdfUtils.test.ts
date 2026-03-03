@@ -8,6 +8,7 @@ import {
 
 describe("pdfUtils", () => {
   describe("splitPdfIntoPages", () => {
+    // PDFファイルを個別のページに分割する機能をテスト
     it("should split a PDF file into individual pages", async () => {
       // Create a test PDF with 3 pages
       const pdfDoc = await PDFDocument.create();
@@ -16,7 +17,7 @@ describe("pdfUtils", () => {
       pdfDoc.addPage();
       const pdfBytes = await pdfDoc.save();
 
-      const file = new File([pdfBytes], "test.pdf", {
+      const file = new File([pdfBytes as BlobPart], "test.pdf", {
         type: "application/pdf",
       });
 
@@ -29,12 +30,13 @@ describe("pdfUtils", () => {
       expect(result[0].sourceFileName).toBe("test.pdf");
     });
 
+    // 1ページのPDFファイルに対応できることを確認
     it("should handle single page PDFs", async () => {
       const pdfDoc = await PDFDocument.create();
       pdfDoc.addPage();
       const pdfBytes = await pdfDoc.save();
 
-      const file = new File([pdfBytes], "single.pdf", {
+      const file = new File([pdfBytes as BlobPart], "single.pdf", {
         type: "application/pdf",
       });
 
@@ -46,6 +48,7 @@ describe("pdfUtils", () => {
   });
 
   describe("mergePdfPages", () => {
+    // 複数のPDFページを1つのPDFにマージする機能をテスト
     it("should merge multiple PDF pages into one", async () => {
       // Create individual pages
       const page1Doc = await PDFDocument.create();
@@ -68,6 +71,7 @@ describe("pdfUtils", () => {
       expect(mergedDoc.getPageCount()).toBe(2);
     });
 
+    // マージ時にページの回転設定が適用されることを確認
     it("should apply rotation to pages when specified", async () => {
       const pageDoc = await PDFDocument.create();
       pageDoc.addPage();
@@ -91,6 +95,7 @@ describe("pdfUtils", () => {
       expect(page2.getRotation().angle).toBe(180);
     });
 
+    // 空のページ配列に対応できることを確認
     it("should handle empty page array", async () => {
       const pages: { pdfBytes: Uint8Array; rotation: number }[] = [];
 
@@ -117,18 +122,20 @@ describe("pdfUtils", () => {
       });
     });
 
+    // PDFバイトから有効なBlob URLを作成する機能をテスト
     it("should create a valid Blob URL from PDF bytes", async () => {
       const pdfDoc = await PDFDocument.create();
       pdfDoc.addPage();
       const pdfBytes = await pdfDoc.save();
 
-      const url = createPdfBlobUrl(pdfBytes);
+      const url = createPdfBlobUrl(pdfBytes as Uint8Array);
       createdUrls.push(url);
 
       expect(url).toMatch(/^blob:/);
       expect(typeof url).toBe("string");
     });
 
+    // 異なるPDFには異なるBlobURLが生成されることを確認
     it("should create different URLs for different PDFs", async () => {
       const pdfDoc1 = await PDFDocument.create();
       pdfDoc1.addPage();
@@ -139,8 +146,8 @@ describe("pdfUtils", () => {
       pdfDoc2.addPage();
       const pdfBytes2 = await pdfDoc2.save();
 
-      const url1 = createPdfBlobUrl(pdfBytes1);
-      const url2 = createPdfBlobUrl(pdfBytes2);
+      const url1 = createPdfBlobUrl(pdfBytes1 as Uint8Array);
+      const url2 = createPdfBlobUrl(pdfBytes2 as Uint8Array);
       createdUrls.push(url1, url2);
 
       expect(url1).not.toBe(url2);
