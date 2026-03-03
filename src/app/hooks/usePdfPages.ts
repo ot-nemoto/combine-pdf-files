@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   createPdfBlobUrl,
   mergePdfPages,
@@ -18,11 +18,6 @@ export function usePdfPages() {
   const [isMerging, setIsMerging] = useState(false);
   const [mergedUrl, setMergedUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const selectedPagesRef = useRef<SelectedPage[]>([]);
-
-  useEffect(() => {
-    selectedPagesRef.current = selectedPages;
-  }, [selectedPages]);
 
   useEffect(() => {
     return () => {
