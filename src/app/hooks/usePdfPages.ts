@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   createPdfBlobUrl,
   mergePdfPages,
@@ -18,6 +18,7 @@ export function usePdfPages() {
   const [isMerging, setIsMerging] = useState(false);
   const [mergedUrl, setMergedUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const addRequestIdRef = useRef(0);
 
   useEffect(() => {
     return () => {
@@ -26,6 +27,9 @@ export function usePdfPages() {
   }, [mergedUrl]);
 
   const addPagesFromFiles = useCallback((files: File[]) => {
+    addRequestIdRef.current += 1;
+    const requestId = addRequestIdRef.current;
+
     setSelectedPages([]);
     setError(null);
     setMergedUrl((previous) => {
@@ -37,6 +41,7 @@ export function usePdfPages() {
       (async () => {
         try {
           const pages = await splitPdfIntoPages(file);
+          if (requestId !== addRequestIdRef.current) return;
 
           setSelectedPages((prev) => [
             ...prev,
@@ -49,6 +54,7 @@ export function usePdfPages() {
             })),
           ]);
         } catch (err) {
+          if (requestId !== addRequestIdRef.current) return;
           console.error(`Failed to process PDF ${file.name}:`, err);
           setError(`Failed to process ${file.name}`);
         }
