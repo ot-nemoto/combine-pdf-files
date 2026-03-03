@@ -55,8 +55,8 @@ const PageItem = memo(
     }, []);
 
     return (
-      <li className="flex items-start gap-3 rounded border border-neutral-200 p-3 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-800/30">
-        <div className="w-32 h-44 flex-shrink-0 rounded border border-neutral-200 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center overflow-hidden">
+      <li className="flex items-start gap-4 rounded border border-neutral-200 p-4 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-800/30">
+        <div className="w-48 h-64 flex-shrink-0 rounded border border-neutral-200 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center overflow-hidden">
           <iframe
             src={previewUrlRef.current || undefined}
             title={`Page ${index + 1} preview`}
@@ -431,7 +431,7 @@ export default function Home() {
         </form>
 
         {mergedUrl && (
-          <section className="w-full max-w-4xl rounded-lg border border-green-500/60 bg-green-50 p-4 text-sm dark:border-green-400/50 dark:bg-green-900/20">
+          <section className="w-full max-w-6xl rounded-lg border border-green-500/60 bg-green-50 p-4 text-sm dark:border-green-400/50 dark:bg-green-900/20">
             <h2 className="mb-3 text-base font-semibold text-green-700 dark:text-green-300">
               結合が完了しました
             </h2>
@@ -451,7 +451,7 @@ export default function Home() {
         )}
 
         {selectedPages.length > 0 && (
-          <section className="w-full max-w-4xl rounded-lg border border-dashed border-neutral-300 p-4 text-sm dark:border-neutral-700">
+          <section className="w-full max-w-6xl rounded-lg border border-dashed border-neutral-300 p-4 text-sm dark:border-neutral-700">
             <h2 className="mb-3 text-base font-semibold">
               選択中のページ ({selectedPages.length}ページ)
             </h2>
