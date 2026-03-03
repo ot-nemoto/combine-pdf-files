@@ -32,10 +32,7 @@ export function usePdfPages() {
 
     setSelectedPages([]);
     setError(null);
-    setMergedUrl((previous) => {
-      if (previous) URL.revokeObjectURL(previous);
-      return null;
-    });
+    setMergedUrl(null);
 
     files.forEach((file) => {
       (async () => {
@@ -118,10 +115,7 @@ export function usePdfPages() {
 
     setIsMerging(true);
     setError(null);
-    setMergedUrl((previous) => {
-      if (previous) URL.revokeObjectURL(previous);
-      return null;
-    });
+    setMergedUrl(null);
 
     try {
       const mergedBytes = await mergePdfPages(
