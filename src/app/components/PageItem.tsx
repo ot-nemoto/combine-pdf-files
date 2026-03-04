@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useEffect, useRef } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 
 export type PageItemProps = {
   page: {
@@ -30,10 +30,11 @@ export const PageItem = memo(
     onMoveDown,
     onDelete,
   }: PageItemProps) => {
-    const previewUrlRef = useRef<string | null>(null);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    const lastUrlRef = useRef<string | null>(null);
 
-    // Generate preview URL only once and store in ref
-    if (!previewUrlRef.current) {
+    // Create and revoke object URL in an effect to avoid side-effects during render.
+    useEffect(() => {
       const arrayBuffer = page.pdfBytes.buffer.slice(
         page.pdfBytes.byteOffset,
         page.pdfBytes.byteOffset + page.pdfBytes.byteLength,
@@ -41,24 +42,30 @@ export const PageItem = memo(
       const blob = new Blob([arrayBuffer as ArrayBuffer], {
         type: "application/pdf",
       });
-      previewUrlRef.current = URL.createObjectURL(blob);
-    }
+      const url = URL.createObjectURL(blob);
+      // store and expose
+      lastUrlRef.current = url;
+      setPreviewUrl(url);
 
-    // Cleanup only on unmount
-    useEffect(() => {
       return () => {
-        if (previewUrlRef.current) {
-          URL.revokeObjectURL(previewUrlRef.current);
-          previewUrlRef.current = null;
+        if (lastUrlRef.current) {
+          try {
+            URL.revokeObjectURL(lastUrlRef.current);
+          } catch {
+            // ignore
+          }
+          lastUrlRef.current = null;
         }
+        setPreviewUrl(null);
       };
-    }, []);
+      // Recreate when the page identity or underlying bytes change
+    }, [page.id, page.pdfBytes.byteOffset, page.pdfBytes.byteLength]);
 
     return (
       <li className="flex items-start gap-4 rounded border border-neutral-200 p-4 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-800/30">
         <div className="w-48 h-64 flex-shrink-0 rounded border border-neutral-200 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center overflow-hidden">
           <iframe
-            src={previewUrlRef.current || undefined}
+            src={previewUrl || undefined}
             title={`Page ${index + 1} preview`}
             className="w-full h-full"
             style={{
