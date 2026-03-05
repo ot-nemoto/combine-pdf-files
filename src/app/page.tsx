@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { PageItem } from "./components/PageItem";
 import { usePdfPages } from "./hooks/usePdfPages";
 
