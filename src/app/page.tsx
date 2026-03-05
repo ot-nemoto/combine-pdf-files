@@ -1,122 +1,34 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
+import { PageItem } from "./components/PageItem";
+import { usePdfPages } from "./hooks/usePdfPages";
 
 export default function Home() {
   const inputRef = useRef<HTMLInputElement>(null);
-  type SelectedItem = { id: string; file: File; previewUrl: string };
-  const [selectedFiles, setSelectedFiles] = useState<SelectedItem[]>([]);
-  const selectedFilesRef = useRef<SelectedItem[]>([]);
-  const [isMerging, setIsMerging] = useState(false);
-  const [mergedUrl, setMergedUrl] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const [isDragActive, setIsDragActive] = useState(false);
   const dragCounterRef = useRef(0);
 
-  useEffect(() => {
-    // keep a ref of current selectedFiles so the unmount cleanup can use it
-    selectedFilesRef.current = selectedFiles;
-  }, [selectedFiles]);
-
-  useEffect(() => {
-    // Revoke preview URLs only on unmount.
-    // We already revoke replaced previews at the time we replace them in handlers.
-    return () => {
-      selectedFilesRef.current.forEach((item) => {
-        try {
-          URL.revokeObjectURL(item.previewUrl);
-        } catch {}
-      });
-    };
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      if (mergedUrl) URL.revokeObjectURL(mergedUrl);
-    };
-  }, [mergedUrl]);
-
-  async function handleMerge() {
-    if (selectedFiles.length < 2) {
-      setError("2つ以上のPDFを選択してください。");
-      return;
-    }
-
-    setIsMerging(true);
-    setError(null);
-    setMergedUrl((previous) => {
-      if (previous) URL.revokeObjectURL(previous);
-      return null;
-    });
-
-    try {
-      const { PDFDocument } = await import("pdf-lib");
-
-      const loadedDocs = await Promise.all(
-        selectedFiles.map(async (item) => {
-          const arrayBuffer = await item.file.arrayBuffer();
-          return PDFDocument.load(arrayBuffer);
-        }),
-      );
-
-      const mergedPdf = await PDFDocument.create();
-
-      for (const doc of loadedDocs) {
-        const copiedPages = await mergedPdf.copyPages(
-          doc,
-          doc.getPageIndices(),
-        );
-        copiedPages.forEach((page) => {
-          mergedPdf.addPage(page);
-        });
-      }
-
-      const mergedBytes = await mergedPdf.save();
-      const arrayBuffer = mergedBytes.buffer.slice(
-        mergedBytes.byteOffset,
-        mergedBytes.byteOffset + mergedBytes.byteLength,
-      ) as ArrayBuffer;
-      const blob = new Blob([arrayBuffer], { type: "application/pdf" });
-      const url = URL.createObjectURL(blob);
-
-      setMergedUrl(url);
-    } catch (err) {
-      console.error(err);
-      setError("PDFの結合に失敗しました。ファイルを確認してください。");
-    } finally {
-      setIsMerging(false);
-    }
-  }
+  const {
+    selectedPages,
+    isMerging,
+    mergedUrl,
+    error,
+    addPagesFromFiles,
+    movePageUp,
+    movePageDown,
+    deletePage,
+    rotatePageClockwise,
+    rotatePageCounterClockwise,
+    mergePages,
+  } = usePdfPages();
 
   function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     const files = event.target.files;
     if (!files) return;
-
-    const nextFiles = Array.from(files);
-
-    // create SelectedItem array with stable ids and preview urls
-    setSelectedFiles((prev) => {
-      // revoke previous previews
-      prev.forEach((p) => {
-        try {
-          URL.revokeObjectURL(p.previewUrl);
-        } catch {}
-      });
-      const items = nextFiles.map((file, i) => ({
-        id: `${Date.now()}-${i}`,
-        file,
-        previewUrl: URL.createObjectURL(file),
-      }));
-      return items;
-    });
-    setMergedUrl((previous) => {
-      if (previous) URL.revokeObjectURL(previous);
-      return null;
-    });
-    setError(null);
+    addPagesFromFiles(Array.from(files));
   }
 
-  // ドラッグ＆ドロップのハンドラ（ドラッグ入れ子問題を dragCounter で安定化）
   function handleDrop(e: React.DragEvent<HTMLElement>) {
     e.preventDefault();
     e.stopPropagation();
@@ -131,45 +43,7 @@ export default function Home() {
     );
     if (files.length === 0) return;
 
-    setSelectedFiles((prev) => {
-      prev.forEach((p) => {
-        try {
-          URL.revokeObjectURL(p.previewUrl);
-        } catch {}
-      });
-      return files.map((file, i) => ({
-        id: `${Date.now()}-${i}`,
-        file,
-        previewUrl: URL.createObjectURL(file),
-      }));
-    });
-    setMergedUrl((previous) => {
-      if (previous) URL.revokeObjectURL(previous);
-      return null;
-    });
-    setError(null);
-  }
-
-  function moveUp(index: number) {
-    if (index <= 0) return;
-    setSelectedFiles((prev) => {
-      const next = prev.slice();
-      const tmp = next[index - 1];
-      next[index - 1] = next[index];
-      next[index] = tmp;
-      return next;
-    });
-  }
-
-  function moveDown(index: number) {
-    setSelectedFiles((prev) => {
-      if (index >= prev.length - 1) return prev;
-      const next = prev.slice();
-      const tmp = next[index + 1];
-      next[index + 1] = next[index];
-      next[index] = tmp;
-      return next;
-    });
+    addPagesFromFiles(files);
   }
 
   function handleDragOver(e: React.DragEvent<HTMLElement>) {
@@ -223,8 +97,8 @@ export default function Home() {
           />
           <button
             type="button"
-            onClick={handleMerge}
-            disabled={isMerging || selectedFiles.length < 2}
+            onClick={mergePages}
+            disabled={isMerging || selectedPages.length < 2}
             className="flex h-11 items-center justify-center rounded bg-blue-600 px-4 text-sm font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isMerging ? "結合中..." : "PDFを結合する"}
@@ -246,72 +120,8 @@ export default function Home() {
           )}
         </form>
 
-        {selectedFiles.length > 0 && (
-          <section className="w-full max-w-xl rounded-lg border border-dashed border-neutral-300 p-4 text-sm dark:border-neutral-700">
-            <h2 className="mb-3 text-base font-semibold">選択中のPDF</h2>
-            <ul className="space-y-2">
-              {selectedFiles.map((item, index) => (
-                <li key={item.id} className="flex flex-col gap-1">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="font-medium">{item.file.name}</span>
-                      <div className="text-xs text-neutral-500">
-                        {Math.round(item.file.size / 1024)} KB
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <button
-                        type="button"
-                        onClick={() => moveUp(index)}
-                        disabled={index === 0}
-                        aria-label={`Move ${item.file.name} up`}
-                        className="rounded border px-2 py-1 text-sm disabled:opacity-50"
-                      >
-                        ↑
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => moveDown(index)}
-                        disabled={index === selectedFiles.length - 1}
-                        aria-label={`Move ${item.file.name} down`}
-                        className="rounded border px-2 py-1 text-sm disabled:opacity-50"
-                      >
-                        ↓
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          // remove this item and revoke its preview
-                          setSelectedFiles((prev) => {
-                            const next = prev.filter((p) => p.id !== item.id);
-                            return next;
-                          });
-                          try {
-                            URL.revokeObjectURL(item.previewUrl);
-                          } catch {}
-                        }}
-                        aria-label={`Remove ${item.file.name}`}
-                        className="rounded border px-2 py-1 text-sm text-red-600 hover:bg-red-50"
-                      >
-                        削除
-                      </button>
-                    </div>
-                  </div>
-                  {item.previewUrl && (
-                    <iframe
-                      src={item.previewUrl}
-                      title={`PDF preview ${index + 1}`}
-                      className="h-48 w-full rounded border border-neutral-200 dark:border-neutral-800"
-                    />
-                  )}
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
-
         {mergedUrl && (
-          <section className="w-full max-w-xl rounded-lg border border-green-500/60 bg-green-50 p-4 text-sm dark:border-green-400/50 dark:bg-green-900/20">
+          <section className="w-full max-w-6xl rounded-lg border border-green-500/60 bg-green-50 p-4 text-sm dark:border-green-400/50 dark:bg-green-900/20">
             <h2 className="mb-3 text-base font-semibold text-green-700 dark:text-green-300">
               結合が完了しました
             </h2>
@@ -327,6 +137,31 @@ export default function Home() {
               title="Merged PDF Preview"
               className="mt-3 h-72 w-full rounded border border-neutral-200 dark:border-neutral-800"
             />
+          </section>
+        )}
+
+        {selectedPages.length > 0 && (
+          <section className="w-full max-w-6xl rounded-lg border border-dashed border-neutral-300 p-4 text-sm dark:border-neutral-700">
+            <h2 className="mb-3 text-base font-semibold">
+              選択中のページ ({selectedPages.length}ページ)
+            </h2>
+            <ul className="space-y-3">
+              {selectedPages.map((page, index) => (
+                <PageItem
+                  key={page.id}
+                  page={page}
+                  index={index}
+                  totalPages={selectedPages.length}
+                  onRotateClockwise={() => rotatePageClockwise(index)}
+                  onRotateCounterClockwise={() =>
+                    rotatePageCounterClockwise(index)
+                  }
+                  onMoveUp={() => movePageUp(index)}
+                  onMoveDown={() => movePageDown(index)}
+                  onDelete={() => deletePage(index)}
+                />
+              ))}
+            </ul>
           </section>
         )}
       </main>
