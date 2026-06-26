@@ -59,7 +59,7 @@ export const PageItem = memo(
         setPreviewUrl(null);
       };
       // Recreate when the page identity or underlying bytes change
-    }, [page.id, page.pdfBytes.byteOffset, page.pdfBytes.byteLength]);
+    }, [page.id, page.pdfBytes.buffer.slice, page.pdfBytes.byteOffset, page.pdfBytes.byteLength]);
 
     return (
       <li className="flex items-start gap-4 rounded border border-neutral-200 p-4 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-800/30">
