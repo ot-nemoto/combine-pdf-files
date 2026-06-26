@@ -2,6 +2,7 @@ import { act, renderHook, waitFor } from "@testing-library/react";
 import { PDFDocument } from "pdf-lib";
 import { describe, expect, it, type MockInstance, vi } from "vitest";
 import { usePdfPages } from "../hooks/usePdfPages";
+import * as pdfUtils from "../utils/pdfUtils";
 
 describe("usePdfPages", () => {
   // フックが初期化時に空の状態で開始することを確認
@@ -327,9 +328,12 @@ describe("usePdfPages", () => {
     });
 
     it("should set error when merge processing fails", async () => {
-      const spy: MockInstance = vi
+      const consoleSpy: MockInstance = vi
         .spyOn(console, "error")
         .mockImplementation(() => {});
+      const mergeSpy: MockInstance = vi
+        .spyOn(pdfUtils, "mergePdfPages")
+        .mockRejectedValue(new Error("merge failed"));
       const { result } = renderHook(() => usePdfPages());
 
       const pdfDoc = await PDFDocument.create();
@@ -349,11 +353,6 @@ describe("usePdfPages", () => {
         expect(result.current.selectedPages.length).toBe(2);
       });
 
-      // Corrupt pdfBytes to cause merge failure
-      act(() => {
-        result.current.selectedPages[0].pdfBytes = new Uint8Array([0, 1, 2]);
-      });
-
       await act(async () => {
         await result.current.mergePages();
       });
@@ -363,7 +362,8 @@ describe("usePdfPages", () => {
       );
       expect(result.current.mergedUrl).toBeNull();
       expect(result.current.isMerging).toBe(false);
-      spy.mockRestore();
+      mergeSpy.mockRestore();
+      consoleSpy.mockRestore();
     });
 
     // 2ページ未満の場合、マージ時にエラーが表示されることを確認
