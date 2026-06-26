@@ -1,7 +1,8 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { PDFDocument } from "pdf-lib";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, type MockInstance, vi } from "vitest";
 import { usePdfPages } from "../hooks/usePdfPages";
+import * as pdfUtils from "../utils/pdfUtils";
 
 describe("usePdfPages", () => {
   // フックが初期化時に空の状態で開始することを確認
@@ -43,6 +44,32 @@ describe("usePdfPages", () => {
 
       expect(result.current.selectedPages[0].sourceFileName).toBe("test.pdf");
       expect(result.current.selectedPages[0].rotation).toBe(0);
+    });
+
+    it("should set error when file processing fails", async () => {
+      const spy: MockInstance = vi
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
+      const { result } = renderHook(() => usePdfPages());
+
+      const corruptedData = new Uint8Array([0, 1, 2, 3]);
+      const file = new File([corruptedData as BlobPart], "corrupted.pdf", {
+        type: "application/pdf",
+      });
+
+      act(() => {
+        result.current.addPagesFromFiles([file]);
+      });
+
+      await waitFor(
+        () => {
+          expect(result.current.error).toBe("Failed to process corrupted.pdf");
+        },
+        { timeout: 3000 },
+      );
+
+      expect(result.current.selectedPages).toEqual([]);
+      spy.mockRestore();
     });
   });
 
@@ -175,6 +202,68 @@ describe("usePdfPages", () => {
       expect(result.current.selectedPages[0].rotation).toBe(180);
     });
 
+    it("should not change order when moving first page up", async () => {
+      const { result } = renderHook(() => usePdfPages());
+
+      const pdfDoc = await PDFDocument.create();
+      pdfDoc.addPage();
+      pdfDoc.addPage();
+      const pdfBytes = await pdfDoc.save();
+
+      const file = new File([pdfBytes as BlobPart], "test.pdf", {
+        type: "application/pdf",
+      });
+
+      act(() => {
+        result.current.addPagesFromFiles([file]);
+      });
+
+      await waitFor(() => {
+        expect(result.current.selectedPages.length).toBe(2);
+      });
+
+      const firstPageId = result.current.selectedPages[0].id;
+      const secondPageId = result.current.selectedPages[1].id;
+
+      act(() => {
+        result.current.movePageUp(0);
+      });
+
+      expect(result.current.selectedPages[0].id).toBe(firstPageId);
+      expect(result.current.selectedPages[1].id).toBe(secondPageId);
+    });
+
+    it("should not change order when moving last page down", async () => {
+      const { result } = renderHook(() => usePdfPages());
+
+      const pdfDoc = await PDFDocument.create();
+      pdfDoc.addPage();
+      pdfDoc.addPage();
+      const pdfBytes = await pdfDoc.save();
+
+      const file = new File([pdfBytes as BlobPart], "test.pdf", {
+        type: "application/pdf",
+      });
+
+      act(() => {
+        result.current.addPagesFromFiles([file]);
+      });
+
+      await waitFor(() => {
+        expect(result.current.selectedPages.length).toBe(2);
+      });
+
+      const firstPageId = result.current.selectedPages[0].id;
+      const secondPageId = result.current.selectedPages[1].id;
+
+      act(() => {
+        result.current.movePageDown(1);
+      });
+
+      expect(result.current.selectedPages[0].id).toBe(firstPageId);
+      expect(result.current.selectedPages[1].id).toBe(secondPageId);
+    });
+
     // ページを反時計回りに回転させる操作が正しく機能することを確認
     it("should rotate page counter-clockwise", async () => {
       const { result } = renderHook(() => usePdfPages());
@@ -236,6 +325,45 @@ describe("usePdfPages", () => {
       expect(result.current.mergedUrl).toMatch(/^blob:/);
       expect(result.current.isMerging).toBe(false);
       expect(result.current.error).toBeNull();
+    });
+
+    it("should set error when merge processing fails", async () => {
+      const consoleSpy: MockInstance = vi
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
+      const mergeSpy: MockInstance = vi
+        .spyOn(pdfUtils, "mergePdfPages")
+        .mockRejectedValue(new Error("merge failed"));
+      const { result } = renderHook(() => usePdfPages());
+
+      const pdfDoc = await PDFDocument.create();
+      pdfDoc.addPage();
+      pdfDoc.addPage();
+      const pdfBytes = await pdfDoc.save();
+
+      const file = new File([pdfBytes as BlobPart], "test.pdf", {
+        type: "application/pdf",
+      });
+
+      act(() => {
+        result.current.addPagesFromFiles([file]);
+      });
+
+      await waitFor(() => {
+        expect(result.current.selectedPages.length).toBe(2);
+      });
+
+      await act(async () => {
+        await result.current.mergePages();
+      });
+
+      expect(result.current.error).toBe(
+        "PDFの結合に失敗しました。ファイルを確認してください。",
+      );
+      expect(result.current.mergedUrl).toBeNull();
+      expect(result.current.isMerging).toBe(false);
+      mergeSpy.mockRestore();
+      consoleSpy.mockRestore();
     });
 
     // 2ページ未満の場合、マージ時にエラーが表示されることを確認

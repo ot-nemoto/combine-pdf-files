@@ -30,6 +30,15 @@ describe("pdfUtils", () => {
       expect(result[0].sourceFileName).toBe("test.pdf");
     });
 
+    it("should throw error for corrupted PDF data", async () => {
+      const corruptedData = new Uint8Array([0, 1, 2, 3, 4, 5]);
+      const file = new File([corruptedData as BlobPart], "corrupted.pdf", {
+        type: "application/pdf",
+      });
+
+      await expect(splitPdfIntoPages(file)).rejects.toThrow();
+    });
+
     // 1ページのPDFファイルに対応できることを確認
     it("should handle single page PDFs", async () => {
       const pdfDoc = await PDFDocument.create();
@@ -93,6 +102,30 @@ describe("pdfUtils", () => {
 
       expect(page1.getRotation().angle).toBe(90);
       expect(page2.getRotation().angle).toBe(180);
+    });
+
+    it("should apply 270 degree rotation", async () => {
+      const pageDoc = await PDFDocument.create();
+      pageDoc.addPage();
+      const pageBytes = await pageDoc.save();
+
+      const pages = [{ pdfBytes: pageBytes, rotation: 270 }];
+
+      const mergedBytes = await mergePdfPages(pages);
+      const mergedDoc = await PDFDocument.load(mergedBytes);
+      expect(mergedDoc.getPage(0).getRotation().angle).toBe(270);
+    });
+
+    it("should not set rotation when rotation is 0", async () => {
+      const pageDoc = await PDFDocument.create();
+      pageDoc.addPage();
+      const pageBytes = await pageDoc.save();
+
+      const pages = [{ pdfBytes: pageBytes, rotation: 0 }];
+
+      const mergedBytes = await mergePdfPages(pages);
+      const mergedDoc = await PDFDocument.load(mergedBytes);
+      expect(mergedDoc.getPage(0).getRotation().angle).toBe(0);
     });
 
     // 空のページ配列に対応できることを確認
