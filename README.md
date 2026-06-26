@@ -1,80 +1,37 @@
 # PDFファイル結合ツール
 
-[![Pages](https://github.com/ot-nemoto/combine-pdf-files/actions/workflows/deploy.yml/badge.svg)](https://github.com/ot-nemoto/combine-pdf-files/actions/workflows/deploy.yml)
+[![Pages](https://github.com/ot-nemoto/combine-pdf-files/actions/workflows/deploy-github-pages.yml/badge.svg)](https://github.com/ot-nemoto/combine-pdf-files/actions/workflows/deploy-github-pages.yml)
+[![CI](https://github.com/ot-nemoto/combine-pdf-files/actions/workflows/ci.yml/badge.svg)](https://github.com/ot-nemoto/combine-pdf-files/actions/workflows/ci.yml)
 [![Dependabot](https://github.com/ot-nemoto/combine-pdf-files/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/ot-nemoto/combine-pdf-files/actions/workflows/dependabot/dependabot-updates/)
 [![License](https://img.shields.io/github/license/ot-nemoto/combine-pdf-files)](https://github.com/ot-nemoto/combine-pdf-files/blob/master/LICENSE)
 
-複数のPDFファイルをブラウザ上で簡単に結合し、1つのPDFファイルとしてダウンロードできるNext.js製Webアプリケーションです。ファイルのドラッグ&ドロップ、プレビュー表示、順序変更など直感的な操作で複数のPDFを効率的に結合できます。
+複数のPDFファイルをブラウザ上で結合し、1つのPDFとしてダウンロードできるWebアプリケーションです。サーバーへのファイル送信なしに、クライアントサイドで完結します。
 
-## クイックスタート (Try it)
+## 機能
 
-1. 依存関係をインストール:
-   ```bash
-   npm install
-   ```
-2. 開発サーバーを起動:
-   ```bash
-   npm run dev
-   ```
-3. ブラウザで [http://localhost:3000](http://localhost:3000) にアクセス
+- ドラッグ＆ドロップによるPDFアップロード（複数同時対応）
+- ページ単位のプレビュー・並び替え・回転・削除
+- クライアントサイドでのPDF結合・ダウンロード
+- ダークモード対応
 
-静的サイトとして出力したい場合は `npm run build:static` を実行すると `out/` 以下に成果物が作成されます。
+## ドキュメント
 
-## 主な機能
+| ドキュメント | 内容 |
+|-------------|------|
+| [docs/product.md](docs/product.md) | プロダクトの目的・対象ユーザー・ゴール |
+| [docs/requirements.md](docs/requirements.md) | 機能要件・非機能要件 |
+| [docs/architecture.md](docs/architecture.md) | 技術スタック・構成・設計 |
+| [docs/ui.md](docs/ui.md) | 画面仕様・コンポーネント・UI規約 |
+| [docs/development.md](docs/development.md) | 開発・運用手順 |
+| [docs/testing.md](docs/testing.md) | テスト方針・カバレッジ |
+| [docs/e2e-scenarios.md](docs/e2e-scenarios.md) | E2Eテストシナリオ |
+| [docs/tasks.md](docs/tasks.md) | フェーズ構成・進捗管理 |
 
-- **ドラッグ&ドロップ対応**: PDFファイルを画面上にドラッグするだけで簡単にアップロード（複数ファイル同時対応）
-- **リアルタイムプレビュー**: 選択したPDFファイルの内容をブラウザ上で即座にプレビュー表示
-- **ファイル順序変更**: 結合前にファイルの順序を上下ボタンで自由に調整可能
-- **個別ファイル削除**: 不要なファイルを選択後に個別削除できる機能
-- **結合処理**: pdf-libライブラリを使用した高品質なPDFファイル結合
-- **ダウンロード機能**: 結合されたPDFファイルをワンクリックでダウンロード
-- **エラーハンドリング**: ファイル形式エラーや処理エラーの分かりやすい表示
-
-## 使い方の流れ
-
-1. 画面中央のファイル選択エリアにPDFファイルをドラッグ&ドロップします（複数同時可）
-2. または「ファイルを選択」ボタンから従来のファイル選択ダイアログを使用
-3. アップロードされたファイルの一覧とプレビューが表示されます
-4. 必要に応じて上下ボタンでファイルの順序を調整します
-5. 不要なファイルがあれば「削除」ボタンで除外します
-6. 「PDFを結合する」ボタンをクリックして結合処理を実行
-7. 結合が完了すると結合済みPDFのプレビューとダウンロードリンクが表示されます
-
-## 技術スタック
-
-- **フレームワーク**: Next.js 15 (App Router)
-- **言語**: TypeScript 5, React 19
-- **PDF処理**: pdf-lib 1.17 でクライアントサイドでのPDF結合
-- **スタイル**: Tailwind CSS 4（`@tailwindcss/postcss` 経由）
-- **開発ツール**: Biome 2 (Lint/Format), cross-env
-
-## ビルドと開発の詳細
-
-### npm スクリプト
-
-- `npm run dev` — 開発サーバーを起動 ([http://localhost:3000](http://localhost:3000))
-- `npm run build` — SSR対応の本番ビルドを生成
-- `npm run build:static` — 静的エクスポート用ビルド（`BUILD_MODE=static`）を生成
-- `npm run start` — `npm run build` 後のアプリを起動
-- `npm run lint` — Biome による静的解析
-- `npm run format` — Biome によるコードフォーマット
-
-### 静的エクスポート
-
-GitHub Pages などの静的ホスティング向けに、以下のコマンドで `out/` フォルダを生成できます：
+## クイックスタート
 
 ```bash
-npm run build:static
+npm install
+npm run dev
 ```
 
-生成されたファイルは `out/` に配置され、`python3 -m http.server` 等で簡易的に確認できます。
-
-### 推奨ワークフロー
-
-1. `npm run lint` でフォーマット・Lint を実行
-2. `npm run build` または `npm run build:static` でビルド検証
-
-## 対応ファイル形式
-
-- **入力**: PDF ファイル（`.pdf`）のみ
-- **出力**: 結合されたPDFファイル（`merged.pdf`）
+詳細は [docs/development.md](docs/development.md) を参照。
