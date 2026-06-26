@@ -33,7 +33,7 @@ export const PageItem = memo(
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const lastUrlRef = useRef<string | null>(null);
 
-    // Create and revoke object URL in an effect to avoid side-effects during render.
+    // biome-ignore lint/correctness/useExhaustiveDependencies: page.id is intentionally included to refresh preview when page identity changes
     useEffect(() => {
       const arrayBuffer = page.pdfBytes.buffer.slice(
         page.pdfBytes.byteOffset,
@@ -58,12 +58,7 @@ export const PageItem = memo(
         }
         setPreviewUrl(null);
       };
-      // Recreate when the page identity or underlying bytes change
-    }, [
-      page.pdfBytes.buffer.slice,
-      page.pdfBytes.byteOffset,
-      page.pdfBytes.byteLength,
-    ]);
+    }, [page.id, page.pdfBytes.byteOffset, page.pdfBytes.byteLength]);
 
     return (
       <li className="flex items-start gap-4 rounded border border-neutral-200 p-4 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-800/30">
