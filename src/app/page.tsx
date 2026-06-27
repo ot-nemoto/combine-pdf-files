@@ -122,10 +122,7 @@ export default function Home() {
         </form>
 
         {mergedUrl && (
-          <section
-            className="w-full rounded-[10px] border border-green-500/60 bg-green-50 p-5"
-            style={{ boxShadow: "2px 2px 5px #cccccc" }}
-          >
+          <section className="card-shadow w-full rounded-[10px] border border-green-500/60 bg-green-50 p-5">
             <h2 className="mb-3 text-[18px] font-bold text-green-700">
               結合が完了しました
             </h2>
