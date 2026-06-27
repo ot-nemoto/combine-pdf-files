@@ -71,6 +71,90 @@ describe("usePdfPages", () => {
       expect(result.current.selectedPages).toEqual([]);
       spy.mockRestore();
     });
+
+    it("should accumulate pages when called multiple times", async () => {
+      const { result } = renderHook(() => usePdfPages());
+
+      const pdfDoc1 = await PDFDocument.create();
+      pdfDoc1.addPage();
+      const pdfBytes1 = await pdfDoc1.save();
+      const file1 = new File([pdfBytes1 as BlobPart], "first.pdf", {
+        type: "application/pdf",
+      });
+
+      act(() => {
+        result.current.addPagesFromFiles([file1]);
+      });
+
+      await waitFor(
+        () => {
+          expect(result.current.selectedPages.length).toBe(1);
+        },
+        { timeout: 3000 },
+      );
+
+      const pdfDoc2 = await PDFDocument.create();
+      pdfDoc2.addPage();
+      pdfDoc2.addPage();
+      const pdfBytes2 = await pdfDoc2.save();
+      const file2 = new File([pdfBytes2 as BlobPart], "second.pdf", {
+        type: "application/pdf",
+      });
+
+      act(() => {
+        result.current.addPagesFromFiles([file2]);
+      });
+
+      await waitFor(
+        () => {
+          expect(result.current.selectedPages.length).toBe(3);
+        },
+        { timeout: 3000 },
+      );
+
+      expect(result.current.selectedPages[0].sourceFileName).toBe("first.pdf");
+      expect(result.current.selectedPages[1].sourceFileName).toBe("second.pdf");
+      expect(result.current.selectedPages[2].sourceFileName).toBe("second.pdf");
+    });
+
+    it("should clear mergedUrl when adding new files", async () => {
+      const { result } = renderHook(() => usePdfPages());
+
+      const pdfDoc = await PDFDocument.create();
+      pdfDoc.addPage();
+      pdfDoc.addPage();
+      const pdfBytes = await pdfDoc.save();
+      const file = new File([pdfBytes as BlobPart], "test.pdf", {
+        type: "application/pdf",
+      });
+
+      act(() => {
+        result.current.addPagesFromFiles([file]);
+      });
+
+      await waitFor(
+        () => {
+          expect(result.current.selectedPages.length).toBe(2);
+        },
+        { timeout: 3000 },
+      );
+
+      await act(async () => {
+        await result.current.mergePages();
+      });
+
+      expect(result.current.mergedUrl).not.toBeNull();
+
+      const file2 = new File([pdfBytes as BlobPart], "another.pdf", {
+        type: "application/pdf",
+      });
+
+      act(() => {
+        result.current.addPagesFromFiles([file2]);
+      });
+
+      expect(result.current.mergedUrl).toBeNull();
+    });
   });
 
   describe("page operations", () => {
