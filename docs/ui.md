@@ -63,7 +63,7 @@ graph LR
 
 - デザイン仕様: [カゴメ DESIGN.md](https://github.com/kzhrknt/awesome-design-md-jp/blob/main/design-md/kagome/DESIGN.md) に準拠
 - スタイリング: Tailwind CSS v4（ユーティリティクラス直書き）
-- フォント: Inter（メインコンテンツ）、Helvetica Neue 系（フッター）
+- フォント: Inter
 - カラー: ブランドカラー `#ee1d23`（カゴメレッド）、本文 `#333333`、補助 `#646464` / `#909090`
 - ボタン: ピル CTA（`border-radius: 100px`、白背景＋レッドテキスト）、操作ボタンもピル形状
 - カード: `border-radius: 10px` + `shadow: 2px 2px 5px #cccccc`
