@@ -77,7 +77,12 @@ export const PageItem = memo(
         draggable
         onDragStart={onDragStart}
         onDragOver={onDragOver}
-        onDragLeave={onDragLeave}
+        onDragLeave={(e) => {
+          const related = e.relatedTarget as Node | null;
+          if (!related || !e.currentTarget.contains(related)) {
+            onDragLeave();
+          }
+        }}
         onDrop={onDrop}
         onDragEnd={onDragEnd}
         className={`card-shadow relative flex items-start gap-4 rounded-[10px] bg-white p-4 transition-shadow cursor-grab active:cursor-grabbing ${dragOverPosition === "above" ? "before:absolute before:inset-x-0 before:top-[-6px] before:h-[3px] before:rounded-full before:bg-[#ee1d23]" : ""} ${dragOverPosition === "below" ? "after:absolute after:inset-x-0 after:bottom-[-6px] after:h-[3px] after:rounded-full after:bg-[#ee1d23]" : ""}`}
