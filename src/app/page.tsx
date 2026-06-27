@@ -146,7 +146,7 @@ export default function Home() {
             </div>
             <a
               href={mergedUrl}
-              download={`${outputFileName || "merged"}.pdf`}
+              download={`${outputFileName.trim().replace(/\.pdf$/i, "") || "merged"}.pdf`}
               className="text-[16px] font-bold text-[#ee1d23] underline underline-offset-2 hover:opacity-80"
             >
               結合されたPDFをダウンロード
