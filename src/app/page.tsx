@@ -43,6 +43,7 @@ export default function Home() {
     (index: number) => (e: React.DragEvent) => {
       dragIndexRef.current = index;
       e.dataTransfer.effectAllowed = "move";
+      e.dataTransfer.setData("text/plain", String(index));
     },
     [],
   );
