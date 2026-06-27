@@ -374,6 +374,68 @@ describe("usePdfPages", () => {
 
       expect(result.current.selectedPages[0].rotation).toBe(270);
     });
+
+    it("should reorder page from one position to another", async () => {
+      const { result } = renderHook(() => usePdfPages());
+
+      const pdfDoc = await PDFDocument.create();
+      pdfDoc.addPage();
+      pdfDoc.addPage();
+      pdfDoc.addPage();
+      const pdfBytes = await pdfDoc.save();
+
+      const file = new File([pdfBytes as BlobPart], "test.pdf", {
+        type: "application/pdf",
+      });
+
+      act(() => {
+        result.current.addPagesFromFiles([file]);
+      });
+
+      await waitFor(() => {
+        expect(result.current.selectedPages.length).toBe(3);
+      });
+
+      const ids = result.current.selectedPages.map((p) => p.id);
+
+      act(() => {
+        result.current.reorderPage(0, 2);
+      });
+
+      expect(result.current.selectedPages[0].id).toBe(ids[1]);
+      expect(result.current.selectedPages[1].id).toBe(ids[2]);
+      expect(result.current.selectedPages[2].id).toBe(ids[0]);
+    });
+
+    it("should not reorder when fromIndex equals toIndex", async () => {
+      const { result } = renderHook(() => usePdfPages());
+
+      const pdfDoc = await PDFDocument.create();
+      pdfDoc.addPage();
+      pdfDoc.addPage();
+      const pdfBytes = await pdfDoc.save();
+
+      const file = new File([pdfBytes as BlobPart], "test.pdf", {
+        type: "application/pdf",
+      });
+
+      act(() => {
+        result.current.addPagesFromFiles([file]);
+      });
+
+      await waitFor(() => {
+        expect(result.current.selectedPages.length).toBe(2);
+      });
+
+      const ids = result.current.selectedPages.map((p) => p.id);
+
+      act(() => {
+        result.current.reorderPage(0, 0);
+      });
+
+      expect(result.current.selectedPages[0].id).toBe(ids[0]);
+      expect(result.current.selectedPages[1].id).toBe(ids[1]);
+    });
   });
 
   describe("mergePages", () => {

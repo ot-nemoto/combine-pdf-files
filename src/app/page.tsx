@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { PageItem } from "./components/PageItem";
 import { usePdfPages } from "./hooks/usePdfPages";
 
@@ -19,6 +19,7 @@ export default function Home() {
     addPagesFromFiles,
     movePageUp,
     movePageDown,
+    reorderPage,
     deletePage,
     rotatePageClockwise,
     rotatePageCounterClockwise,
@@ -31,6 +32,57 @@ export default function Home() {
     addPagesFromFiles(Array.from(files));
     event.target.value = "";
   }
+
+  const dragIndexRef = useRef<number | null>(null);
+  const [dragOver, setDragOver] = useState<{
+    index: number;
+    position: "above" | "below";
+  } | null>(null);
+
+  const handlePageDragStart = useCallback(
+    (index: number) => (e: React.DragEvent) => {
+      dragIndexRef.current = index;
+      e.dataTransfer.effectAllowed = "move";
+    },
+    [],
+  );
+
+  const handlePageDragOver = useCallback(
+    (index: number) => (e: React.DragEvent) => {
+      if (dragIndexRef.current === null) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "move";
+      const rect = e.currentTarget.getBoundingClientRect();
+      const midY = rect.top + rect.height / 2;
+      const position = e.clientY < midY ? "above" : "below";
+      setDragOver({ index, position });
+    },
+    [],
+  );
+
+  const handlePageDragLeave = useCallback(() => {
+    setDragOver(null);
+  }, []);
+
+  const handlePageDrop = useCallback(
+    (index: number) => (e: React.DragEvent) => {
+      e.preventDefault();
+      if (dragIndexRef.current !== null && dragOver) {
+        const from = dragIndexRef.current;
+        let to = dragOver.position === "below" ? index + 1 : index;
+        if (from < to) to -= 1;
+        if (from !== to) reorderPage(from, to);
+      }
+      dragIndexRef.current = null;
+      setDragOver(null);
+    },
+    [reorderPage, dragOver],
+  );
+
+  const handlePageDragEnd = useCallback(() => {
+    dragIndexRef.current = null;
+    setDragOver(null);
+  }, []);
 
   function handleDrop(e: React.DragEvent<HTMLElement>) {
     e.preventDefault();
@@ -178,6 +230,14 @@ export default function Home() {
                   onMoveUp={() => movePageUp(index)}
                   onMoveDown={() => movePageDown(index)}
                   onDelete={() => deletePage(index)}
+                  dragOverPosition={
+                    dragOver?.index === index ? dragOver.position : null
+                  }
+                  onDragStart={handlePageDragStart(index)}
+                  onDragOver={handlePageDragOver(index)}
+                  onDragLeave={handlePageDragLeave}
+                  onDrop={handlePageDrop(index)}
+                  onDragEnd={handlePageDragEnd}
                 />
               ))}
             </ul>
