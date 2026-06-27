@@ -17,6 +17,12 @@ export type PageItemProps = {
   onMoveUp: () => void;
   onMoveDown: () => void;
   onDelete: () => void;
+  dragOverPosition: "above" | "below" | null;
+  onDragStart: (e: React.DragEvent) => void;
+  onDragOver: (e: React.DragEvent) => void;
+  onDragLeave: () => void;
+  onDrop: (e: React.DragEvent) => void;
+  onDragEnd: () => void;
 };
 
 export const PageItem = memo(
@@ -29,6 +35,12 @@ export const PageItem = memo(
     onMoveUp,
     onMoveDown,
     onDelete,
+    dragOverPosition,
+    onDragStart,
+    onDragOver,
+    onDragLeave,
+    onDrop,
+    onDragEnd,
   }: PageItemProps) => {
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const lastUrlRef = useRef<string | null>(null);
@@ -61,7 +73,20 @@ export const PageItem = memo(
     }, [page.id, page.pdfBytes.byteOffset, page.pdfBytes.byteLength]);
 
     return (
-      <li className="card-shadow flex items-start gap-4 rounded-[10px] bg-white p-4 transition-shadow">
+      <li
+        draggable
+        onDragStart={onDragStart}
+        onDragOver={onDragOver}
+        onDragLeave={(e) => {
+          const related = e.relatedTarget as Node | null;
+          if (!related || !e.currentTarget.contains(related)) {
+            onDragLeave();
+          }
+        }}
+        onDrop={onDrop}
+        onDragEnd={onDragEnd}
+        className={`card-shadow relative flex items-start gap-4 rounded-[10px] bg-white p-4 transition-shadow cursor-grab active:cursor-grabbing ${dragOverPosition === "above" ? "before:absolute before:inset-x-0 before:top-[-6px] before:h-[3px] before:rounded-full before:bg-[#ee1d23]" : ""} ${dragOverPosition === "below" ? "after:absolute after:inset-x-0 after:bottom-[-6px] after:h-[3px] after:rounded-full after:bg-[#ee1d23]" : ""}`}
+      >
         <div className="w-48 h-64 flex-shrink-0 rounded-[10px] border border-neutral-200 bg-neutral-100 flex items-center justify-center overflow-hidden">
           <iframe
             src={previewUrl || undefined}

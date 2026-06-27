@@ -74,6 +74,24 @@ export function usePdfPages() {
     });
   }, []);
 
+  const reorderPage = useCallback((fromIndex: number, toIndex: number) => {
+    setSelectedPages((prev) => {
+      if (
+        fromIndex === toIndex ||
+        fromIndex < 0 ||
+        toIndex < 0 ||
+        fromIndex >= prev.length ||
+        toIndex >= prev.length
+      ) {
+        return prev;
+      }
+      const next = prev.slice();
+      const [moved] = next.splice(fromIndex, 1);
+      next.splice(toIndex, 0, moved);
+      return next;
+    });
+  }, []);
+
   const deletePage = useCallback((index: number) => {
     setSelectedPages((prev) => prev.filter((_, i) => i !== index));
   }, []);
@@ -136,6 +154,7 @@ export function usePdfPages() {
     addPagesFromFiles,
     movePageUp,
     movePageDown,
+    reorderPage,
     deletePage,
     rotatePageClockwise,
     rotatePageCounterClockwise,
