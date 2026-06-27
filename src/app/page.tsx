@@ -85,12 +85,11 @@ export default function Home() {
           onDragOver={handleDragOver}
           onDragEnter={handleDragEnter}
           onDragLeave={handleDragLeave}
-          className={`relative flex w-full flex-col gap-3 rounded-[10px] border p-5 bg-white ${
+          className={`card-shadow relative flex w-full flex-col gap-3 rounded-[10px] border p-5 bg-white ${
             isDragActive
               ? "border-4 border-dashed border-[#ee1d23] bg-red-50/30"
               : "border-neutral-200"
           }`}
-          style={{ boxShadow: "2px 2px 5px #cccccc" }}
         >
           <input
             ref={inputRef}
