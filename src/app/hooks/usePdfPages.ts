@@ -36,8 +36,8 @@ export function usePdfPages() {
 
           setSelectedPages((prev) => [
             ...prev,
-            ...pages.map((page, idx) => ({
-              id: `${Date.now()}-${file.name}-${page.pageIndex}-${idx}`,
+            ...pages.map((page) => ({
+              id: crypto.randomUUID(),
               pageIndex: page.pageIndex,
               sourceFileName: page.sourceFileName,
               rotation: 0,
