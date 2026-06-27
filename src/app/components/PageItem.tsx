@@ -33,7 +33,7 @@ export const PageItem = memo(
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const lastUrlRef = useRef<string | null>(null);
 
-    // Create and revoke object URL in an effect to avoid side-effects during render.
+    // biome-ignore lint/correctness/useExhaustiveDependencies: page.id is intentionally included to refresh preview when page identity changes
     useEffect(() => {
       const arrayBuffer = page.pdfBytes.buffer.slice(
         page.pdfBytes.byteOffset,
@@ -58,12 +58,11 @@ export const PageItem = memo(
         }
         setPreviewUrl(null);
       };
-      // Recreate when the page identity or underlying bytes change
     }, [page.id, page.pdfBytes.byteOffset, page.pdfBytes.byteLength]);
 
     return (
-      <li className="flex items-start gap-4 rounded border border-neutral-200 p-4 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-800/30">
-        <div className="w-48 h-64 flex-shrink-0 rounded border border-neutral-200 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center overflow-hidden">
+      <li className="card-shadow flex items-start gap-4 rounded-[10px] bg-white p-4 transition-shadow">
+        <div className="w-48 h-64 flex-shrink-0 rounded-[10px] border border-neutral-200 bg-neutral-100 flex items-center justify-center overflow-hidden">
           <iframe
             src={previewUrl || undefined}
             title={`Page ${index + 1} preview`}
@@ -76,13 +75,13 @@ export const PageItem = memo(
         </div>
 
         <div className="flex-1 min-w-0">
-          <div className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+          <div className="text-[16px] font-bold text-[#333333]">
             ページ {index + 1}
           </div>
-          <div className="text-xs text-neutral-600 dark:text-neutral-400 mt-1">
+          <div className="text-[14px] text-[#646464] mt-1">
             {page.sourceFileName}
           </div>
-          <div className="text-xs text-neutral-500 mt-0.5">
+          <div className="text-[14px] text-[#909090] mt-0.5">
             元のページ: {page.pageIndex + 1} • 回転: {page.rotation}°
           </div>
 
@@ -91,7 +90,7 @@ export const PageItem = memo(
               type="button"
               onClick={onRotateCounterClockwise}
               title="左回転（-90°）"
-              className="rounded border border-neutral-300 dark:border-neutral-600 px-3 py-1.5 text-sm hover:bg-blue-50 dark:hover:bg-blue-900/20"
+              className="rounded-[100px] border border-neutral-300 px-3 py-1.5 text-[14px] text-[#333333] hover:bg-neutral-100"
             >
               ↺ 左回転
             </button>
@@ -99,7 +98,7 @@ export const PageItem = memo(
               type="button"
               onClick={onRotateClockwise}
               title="右回転（+90°）"
-              className="rounded border border-neutral-300 dark:border-neutral-600 px-3 py-1.5 text-sm hover:bg-blue-50 dark:hover:bg-blue-900/20"
+              className="rounded-[100px] border border-neutral-300 px-3 py-1.5 text-[14px] text-[#333333] hover:bg-neutral-100"
             >
               ↻ 右回転
             </button>
@@ -109,7 +108,7 @@ export const PageItem = memo(
               onClick={onMoveUp}
               disabled={index === 0}
               aria-label="Move page up"
-              className="rounded border border-neutral-300 dark:border-neutral-600 px-3 py-1.5 text-sm disabled:opacity-50"
+              className="rounded-[100px] border border-neutral-300 px-3 py-1.5 text-[14px] text-[#333333] disabled:opacity-50"
             >
               ↑ 上へ
             </button>
@@ -118,7 +117,7 @@ export const PageItem = memo(
               onClick={onMoveDown}
               disabled={index === totalPages - 1}
               aria-label="Move page down"
-              className="rounded border border-neutral-300 dark:border-neutral-600 px-3 py-1.5 text-sm disabled:opacity-50"
+              className="rounded-[100px] border border-neutral-300 px-3 py-1.5 text-[14px] text-[#333333] disabled:opacity-50"
             >
               ↓ 下へ
             </button>
@@ -126,7 +125,7 @@ export const PageItem = memo(
               type="button"
               onClick={onDelete}
               aria-label="Delete page"
-              className="rounded border border-red-300 dark:border-red-600 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+              className="rounded-[100px] border border-red-300 px-3 py-1.5 text-[14px] text-red-600 hover:bg-red-50"
             >
               削除
             </button>
