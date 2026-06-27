@@ -8,6 +8,7 @@ import { usePdfPages } from "./hooks/usePdfPages";
 export default function Home() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragActive, setIsDragActive] = useState(false);
+  const [outputFileName, setOutputFileName] = useState("merged");
   const dragCounterRef = useRef(0);
 
   const {
@@ -127,9 +128,25 @@ export default function Home() {
             <h2 className="mb-3 text-[18px] font-bold text-green-700">
               結合が完了しました
             </h2>
+            <div className="mb-3 flex items-center gap-3">
+              <label
+                htmlFor="output-filename"
+                className="text-[14px] text-[#646464]"
+              >
+                ファイル名:
+              </label>
+              <input
+                id="output-filename"
+                type="text"
+                value={outputFileName}
+                onChange={(e) => setOutputFileName(e.target.value)}
+                className="rounded-[50px] border-none bg-[#e7e7e7] px-4 py-1.5 text-[14px]"
+              />
+              <span className="text-[14px] text-[#909090]">.pdf</span>
+            </div>
             <a
               href={mergedUrl}
-              download="merged.pdf"
+              download={`${outputFileName.trim().replace(/\.pdf$/i, "") || "merged"}.pdf`}
               className="text-[16px] font-bold text-[#ee1d23] underline underline-offset-2 hover:opacity-80"
             >
               結合されたPDFをダウンロード
