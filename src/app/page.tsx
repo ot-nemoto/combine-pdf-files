@@ -69,11 +69,15 @@ export default function Home() {
 
   return (
     <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <h1 className="text-xl sm:text-2xl font-bold">PDFファイル結合ツール</h1>
-        <p className="text-sm text-center sm:text-left text-neutral-600 dark:text-neutral-300">
-          複数のPDFファイルを選択して結合し、1つのPDFとしてダウンロードできます。
-        </p>
+      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start w-full max-w-6xl">
+        <div className="text-center sm:text-left">
+          <h1 className="text-[30px] font-bold text-[#333333] leading-[1.6]">
+            PDFファイル結合ツール
+          </h1>
+          <p className="mt-2 text-[18px] text-[#646464] leading-[1.6]">
+            複数のPDFファイルを選択して結合し、1つのPDFとしてダウンロードできます。
+          </p>
+        </div>
 
         <form
           onSubmit={(e) => e.preventDefault()}
@@ -81,12 +85,12 @@ export default function Home() {
           onDragOver={handleDragOver}
           onDragEnter={handleDragEnter}
           onDragLeave={handleDragLeave}
-          className={`flex w-full max-w-xl flex-col gap-3 rounded-lg border p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900/40 ${
+          className={`relative flex w-full flex-col gap-3 rounded-[10px] border p-5 bg-white ${
             isDragActive
-              ? "border-4 border-dashed border-blue-500 bg-blue-50/30 dark:bg-blue-900/30"
-              : "border-neutral-200 bg-white/10"
+              ? "border-4 border-dashed border-[#ee1d23] bg-red-50/30"
+              : "border-neutral-200"
           }`}
-          style={{ position: "relative" }}
+          style={{ boxShadow: "2px 2px 5px #cccccc" }}
         >
           <input
             ref={inputRef}
@@ -94,25 +98,22 @@ export default function Home() {
             accept="application/pdf"
             multiple
             onChange={handleFileChange}
-            className="w-full cursor-pointer rounded border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700"
+            className="w-full cursor-pointer rounded-[50px] border-none bg-[#e7e7e7] px-5 py-3 text-[16px]"
           />
           <button
             type="button"
             onClick={mergePages}
             disabled={isMerging || selectedPages.length < 2}
-            className="flex h-11 items-center justify-center rounded bg-blue-600 px-4 text-sm font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex h-11 items-center justify-center rounded-[100px] border border-[#ee1d23] bg-white px-[45px] py-[10px] text-[18px] font-bold text-[#ee1d23] transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isMerging ? "結合中..." : "PDFを結合する"}
           </button>
           {error && <p className="text-sm text-red-600">{error}</p>}
 
-          {/* ドラッグ中に表示される強調オーバーレイ（pointer-events-none にして drop を下のフォームで受ける） */}
           {isDragActive && (
-            <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg pointer-events-none">
-              <div className="flex flex-col items-center gap-2 rounded-lg bg-blue-600/85 px-6 py-5 text-center text-white shadow-lg">
-                <div className="text-2xl font-semibold">
-                  ここに PDF をドロップ
-                </div>
+            <div className="absolute inset-0 z-10 flex items-center justify-center rounded-[10px] pointer-events-none">
+              <div className="flex flex-col items-center gap-2 rounded-[10px] bg-[#ee1d23]/90 px-6 py-5 text-center text-white shadow-lg">
+                <div className="text-2xl font-bold">ここに PDF をドロップ</div>
                 <div className="text-sm opacity-90">
                   複数の PDF を一度にドロップできます
                 </div>
@@ -122,28 +123,31 @@ export default function Home() {
         </form>
 
         {mergedUrl && (
-          <section className="w-full max-w-6xl rounded-lg border border-green-500/60 bg-green-50 p-4 text-sm dark:border-green-400/50 dark:bg-green-900/20">
-            <h2 className="mb-3 text-base font-semibold text-green-700 dark:text-green-300">
+          <section
+            className="w-full rounded-[10px] border border-green-500/60 bg-green-50 p-5"
+            style={{ boxShadow: "2px 2px 5px #cccccc" }}
+          >
+            <h2 className="mb-3 text-[18px] font-bold text-green-700">
               結合が完了しました
             </h2>
             <a
               href={mergedUrl}
               download="merged.pdf"
-              className="text-sm font-semibold text-blue-600 underline underline-offset-2 hover:text-blue-500"
+              className="text-[16px] font-bold text-[#ee1d23] underline underline-offset-2 hover:opacity-80"
             >
               結合されたPDFをダウンロード
             </a>
             <iframe
               src={mergedUrl}
               title="Merged PDF Preview"
-              className="mt-3 h-72 w-full rounded border border-neutral-200 dark:border-neutral-800"
+              className="mt-3 h-72 w-full rounded-[10px] border border-neutral-200"
             />
           </section>
         )}
 
         {selectedPages.length > 0 && (
-          <section className="w-full max-w-6xl rounded-lg border border-dashed border-neutral-300 p-4 text-sm dark:border-neutral-700">
-            <h2 className="mb-3 text-base font-semibold">
+          <section className="w-full rounded-[10px] bg-[#f6f6f6] p-5">
+            <h2 className="mb-3 text-[18px] font-bold text-[#333333]">
               選択中のページ ({selectedPages.length}ページ)
             </h2>
             <ul className="space-y-3">
@@ -166,9 +170,7 @@ export default function Home() {
           </section>
         )}
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <span className="text-sm text-neutral-500">© PDF結合ツール</span>
-      </footer>
+      <footer className="row-start-3" />
     </div>
   );
 }

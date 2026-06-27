@@ -61,7 +61,12 @@ graph LR
 
 ## UI 規約
 
+- デザイン仕様: [カゴメ DESIGN.md](https://github.com/kzhrknt/awesome-design-md-jp/blob/main/design-md/kagome/DESIGN.md) に準拠
 - スタイリング: Tailwind CSS v4（ユーティリティクラス直書き）
-- ダークモード: `dark:` プレフィクスで対応
-- ボタン: `rounded border` ベース、操作系は `border-neutral-300`、削除は `border-red-300`
+- フォント: Inter（メインコンテンツ）、Helvetica Neue 系（フッター）
+- カラー: ブランドカラー `#ee1d23`（カゴメレッド）、本文 `#333333`、補助 `#646464` / `#909090`
+- ボタン: ピル CTA（`border-radius: 100px`、白背景＋レッドテキスト）、操作ボタンもピル形状
+- カード: `border-radius: 10px` + `shadow: 2px 2px 5px #cccccc`
+- セクション背景: `#f6f6f6`
+- ダークモード: 非対応（カゴメ仕様に準拠）
 - 状態フィードバック: disabled 時は `opacity-50` + `cursor-not-allowed`
