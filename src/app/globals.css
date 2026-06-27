@@ -25,3 +25,11 @@ body {
   font-family: var(--font-inter, Inter), sans-serif;
   line-height: 1.6;
 }
+
+.card-shadow {
+  box-shadow: var(--card-shadow);
+}
+
+.card-shadow:hover {
+  box-shadow: 3px 3px 8px #bbbbbb;
+}

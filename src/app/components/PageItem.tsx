@@ -61,10 +61,7 @@ export const PageItem = memo(
     }, [page.id, page.pdfBytes.byteOffset, page.pdfBytes.byteLength]);
 
     return (
-      <li
-        className="flex items-start gap-4 rounded-[10px] bg-white p-4 hover:shadow-md transition-shadow"
-        style={{ boxShadow: "2px 2px 5px #cccccc" }}
-      >
+      <li className="card-shadow flex items-start gap-4 rounded-[10px] bg-white p-4 transition-shadow">
         <div className="w-48 h-64 flex-shrink-0 rounded-[10px] border border-neutral-200 bg-neutral-100 flex items-center justify-center overflow-hidden">
           <iframe
             src={previewUrl || undefined}
