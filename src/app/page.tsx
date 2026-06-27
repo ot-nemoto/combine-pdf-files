@@ -28,6 +28,7 @@ export default function Home() {
     const files = event.target.files;
     if (!files) return;
     addPagesFromFiles(Array.from(files));
+    event.target.value = "";
   }
 
   function handleDrop(e: React.DragEvent<HTMLElement>) {
