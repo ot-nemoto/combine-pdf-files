@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   createPdfBlobUrl,
   mergePdfPages,
@@ -18,7 +18,6 @@ export function usePdfPages() {
   const [isMerging, setIsMerging] = useState(false);
   const [mergedUrl, setMergedUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const addRequestIdRef = useRef(0);
 
   useEffect(() => {
     return () => {
@@ -27,23 +26,18 @@ export function usePdfPages() {
   }, [mergedUrl]);
 
   const addPagesFromFiles = useCallback((files: File[]) => {
-    addRequestIdRef.current += 1;
-    const requestId = addRequestIdRef.current;
-
-    setSelectedPages([]);
     setError(null);
     setMergedUrl(null);
 
-    files.forEach((file) => {
+    for (const file of files) {
       (async () => {
         try {
           const pages = await splitPdfIntoPages(file);
-          if (requestId !== addRequestIdRef.current) return;
 
           setSelectedPages((prev) => [
             ...prev,
-            ...pages.map((page, idx) => ({
-              id: `${Date.now()}-${file.name}-${page.pageIndex}-${idx}`,
+            ...pages.map((page) => ({
+              id: crypto.randomUUID(),
               pageIndex: page.pageIndex,
               sourceFileName: page.sourceFileName,
               rotation: 0,
@@ -51,12 +45,11 @@ export function usePdfPages() {
             })),
           ]);
         } catch (err) {
-          if (requestId !== addRequestIdRef.current) return;
           console.error(`Failed to process PDF ${file.name}:`, err);
           setError(`Failed to process ${file.name}`);
         }
       })();
-    });
+    }
   }, []);
 
   const movePageUp = useCallback((index: number) => {
@@ -77,6 +70,24 @@ export function usePdfPages() {
       const tmp = next[index + 1];
       next[index + 1] = next[index];
       next[index] = tmp;
+      return next;
+    });
+  }, []);
+
+  const reorderPage = useCallback((fromIndex: number, toIndex: number) => {
+    setSelectedPages((prev) => {
+      if (
+        fromIndex === toIndex ||
+        fromIndex < 0 ||
+        toIndex < 0 ||
+        fromIndex >= prev.length ||
+        toIndex >= prev.length
+      ) {
+        return prev;
+      }
+      const next = prev.slice();
+      const [moved] = next.splice(fromIndex, 1);
+      next.splice(toIndex, 0, moved);
       return next;
     });
   }, []);
@@ -143,6 +154,7 @@ export function usePdfPages() {
     addPagesFromFiles,
     movePageUp,
     movePageDown,
+    reorderPage,
     deletePage,
     rotatePageClockwise,
     rotatePageCounterClockwise,
