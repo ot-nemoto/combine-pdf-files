@@ -1,10 +1,6 @@
 import { PDFDocument } from "pdf-lib";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import {
-  createPdfBlobUrl,
-  mergePdfPages,
-  splitPdfIntoPages,
-} from "../utils/pdfUtils";
+import { createPdfBlobUrl, mergePdfPages, splitPdfIntoPages } from "./pdfUtils";
 
 describe("pdfUtils", () => {
   describe("splitPdfIntoPages", () => {
