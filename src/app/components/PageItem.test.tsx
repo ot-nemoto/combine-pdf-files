@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
-import { PageItem } from "../components/PageItem";
+import { PageItem } from "./PageItem";
 
 describe("PageItem", () => {
   const mockPage = {
