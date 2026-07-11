@@ -4,7 +4,7 @@ import {
   createPdfBlobUrl,
   mergePdfPages,
   splitPdfIntoPages,
-} from "../utils/pdfUtils";
+} from "./pdfUtils";
 
 describe("pdfUtils", () => {
   describe("splitPdfIntoPages", () => {

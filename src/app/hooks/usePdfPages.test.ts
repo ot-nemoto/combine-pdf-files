@@ -1,7 +1,7 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { PDFDocument } from "pdf-lib";
 import { describe, expect, it, type MockInstance, vi } from "vitest";
-import { usePdfPages } from "../hooks/usePdfPages";
+import { usePdfPages } from "./usePdfPages";
 import * as pdfUtils from "../utils/pdfUtils";
 
 describe("usePdfPages", () => {
