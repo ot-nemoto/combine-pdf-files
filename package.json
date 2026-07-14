@@ -21,7 +21,7 @@
     "react-dom": "19.2.7"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.5.3",
+    "@biomejs/biome": "2.5.2",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.1.0",
@@ -35,7 +35,7 @@
     "cross-env": "^10.1.0",
     "jsdom": "^29.1.1",
     "tailwindcss": "^4",
-    "typescript": "^7",
+    "typescript": "^6",
     "vitest": "^4.1.9"
   },
   "license": "MIT"
