@@ -1,6 +1,6 @@
 {
   "name": "combine-pdf-files",
-  "version": "0.3.10",
+  "version": "0.3.11",
   "private": true,
   "scripts": {
     "prepare": "biome migrate --write",
