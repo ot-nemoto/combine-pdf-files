@@ -18,6 +18,12 @@ describe("PageItem", () => {
     onDelete: vi.fn(),
     onRotateClockwise: vi.fn(),
     onRotateCounterClockwise: vi.fn(),
+    dragOverPosition: null,
+    onDragStart: vi.fn(),
+    onDragOver: vi.fn(),
+    onDragLeave: vi.fn(),
+    onDrop: vi.fn(),
+    onDragEnd: vi.fn(),
   };
 
   // PageItem コンポーネントがページ情報（ファイル名と現在のページ番号）を正しくレンダリングすることを確認
