@@ -24,7 +24,23 @@ export default function Home() {
     rotatePageClockwise,
     rotatePageCounterClockwise,
     mergePages,
+    resetAll,
   } = usePdfPages();
+
+  const canReset = selectedPages.length > 0 || mergedUrl !== null;
+
+  function handleReset() {
+    if (
+      !window.confirm(
+        "選択中のページと結合結果をすべて削除します。よろしいですか？",
+      )
+    ) {
+      return;
+    }
+    resetAll();
+    setOutputFileName("merged");
+    if (inputRef.current) inputRef.current.value = "";
+  }
 
   function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     const files = event.target.files;
@@ -154,14 +170,24 @@ export default function Home() {
             onChange={handleFileChange}
             className="w-full cursor-pointer rounded-[50px] border-none bg-[#e7e7e7] px-5 py-3 text-[16px]"
           />
-          <button
-            type="button"
-            onClick={mergePages}
-            disabled={isMerging || selectedPages.length < 2}
-            className="flex h-11 items-center justify-center rounded-[100px] border border-[#ee1d23] bg-white px-[45px] py-[10px] text-[18px] font-bold text-[#ee1d23] transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {isMerging ? "結合中..." : "PDFを結合する"}
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={mergePages}
+              disabled={isMerging || selectedPages.length < 2}
+              className="flex h-11 items-center justify-center rounded-[100px] border border-[#ee1d23] bg-white px-[45px] py-[10px] text-[18px] font-bold text-[#ee1d23] transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {isMerging ? "結合中..." : "PDFを結合する"}
+            </button>
+            <button
+              type="button"
+              onClick={handleReset}
+              disabled={!canReset}
+              className="flex h-11 items-center justify-center rounded-[100px] border border-neutral-300 bg-white px-[30px] py-[10px] text-[16px] font-bold text-[#646464] transition hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              リセット
+            </button>
+          </div>
           {error && <p className="text-sm text-red-600">{error}</p>}
 
           {isDragActive && (

@@ -540,4 +540,57 @@ describe("usePdfPages", () => {
       expect(result.current.mergedUrl).toBeNull();
     });
   });
+
+  describe("resetAll", () => {
+    // 選択中ページ・結合結果・エラーをすべて初期状態に戻すことを確認
+    it("should clear selectedPages, mergedUrl, and error", async () => {
+      const { result } = renderHook(() => usePdfPages());
+
+      const pdfDoc = await PDFDocument.create();
+      pdfDoc.addPage();
+      pdfDoc.addPage();
+      const pdfBytes = await pdfDoc.save();
+
+      const file = new File([pdfBytes as BlobPart], "test.pdf", {
+        type: "application/pdf",
+      });
+
+      act(() => {
+        result.current.addPagesFromFiles([file]);
+      });
+
+      await waitFor(() => {
+        expect(result.current.selectedPages.length).toBe(2);
+      });
+
+      await act(async () => {
+        await result.current.mergePages();
+      });
+
+      await waitFor(() => {
+        expect(result.current.mergedUrl).not.toBeNull();
+      });
+
+      act(() => {
+        result.current.resetAll();
+      });
+
+      expect(result.current.selectedPages).toEqual([]);
+      expect(result.current.mergedUrl).toBeNull();
+      expect(result.current.error).toBeNull();
+    });
+
+    // 空状態から呼び出しても問題なく動作することを確認
+    it("should be a no-op when called on empty state", () => {
+      const { result } = renderHook(() => usePdfPages());
+
+      act(() => {
+        result.current.resetAll();
+      });
+
+      expect(result.current.selectedPages).toEqual([]);
+      expect(result.current.mergedUrl).toBeNull();
+      expect(result.current.error).toBeNull();
+    });
+  });
 });

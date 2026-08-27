@@ -118,6 +118,12 @@ export function usePdfPages() {
     });
   }, []);
 
+  const resetAll = useCallback(() => {
+    setSelectedPages([]);
+    setMergedUrl(null);
+    setError(null);
+  }, []);
+
   const mergePages = useCallback(async () => {
     if (selectedPages.length < 2) {
       setError("2つ以上のページを選択してください。");
@@ -159,5 +165,6 @@ export function usePdfPages() {
     rotatePageClockwise,
     rotatePageCounterClockwise,
     mergePages,
+    resetAll,
   };
 }
