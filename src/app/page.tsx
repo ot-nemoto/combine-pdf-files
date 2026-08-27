@@ -39,7 +39,7 @@ export default function Home() {
     }
     resetAll();
     setOutputFileName("merged");
-    if (inputRef.current) inputRef.current.value = "";
+    inputRef.current!.value = "";
   }
 
   function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {

@@ -592,5 +592,93 @@ describe("usePdfPages", () => {
       expect(result.current.mergedUrl).toBeNull();
       expect(result.current.error).toBeNull();
     });
+
+    // リセット後に完了した非同期処理が、消したはずの状態を復活させないことを確認
+    it("should ignore addPagesFromFiles results that resolve after reset", async () => {
+      let resolveSplit: (
+        value: Awaited<ReturnType<typeof pdfUtils.splitPdfIntoPages>>,
+      ) => void = () => {};
+      const splitSpy: MockInstance = vi
+        .spyOn(pdfUtils, "splitPdfIntoPages")
+        .mockReturnValue(
+          new Promise((resolve) => {
+            resolveSplit = resolve;
+          }),
+        );
+
+      const { result } = renderHook(() => usePdfPages());
+
+      const file = new File([new Uint8Array([0])], "test.pdf", {
+        type: "application/pdf",
+      });
+
+      act(() => {
+        result.current.addPagesFromFiles([file]);
+      });
+
+      act(() => {
+        result.current.resetAll();
+      });
+
+      await act(async () => {
+        resolveSplit([
+          {
+            pageIndex: 0,
+            sourceFileName: "test.pdf",
+            pdfBytes: new Uint8Array([0]),
+          },
+        ]);
+      });
+
+      expect(result.current.selectedPages).toEqual([]);
+      splitSpy.mockRestore();
+    });
+
+    // リセット後に完了した結合処理が、消したはずの結合結果を復活させないことを確認
+    it("should ignore mergePages results that resolve after reset", async () => {
+      let resolveMerge: (value: Uint8Array) => void = () => {};
+      const mergeSpy: MockInstance = vi
+        .spyOn(pdfUtils, "mergePdfPages")
+        .mockReturnValue(
+          new Promise((resolve) => {
+            resolveMerge = resolve;
+          }),
+        );
+
+      const { result } = renderHook(() => usePdfPages());
+
+      const pdfDoc = await PDFDocument.create();
+      pdfDoc.addPage();
+      pdfDoc.addPage();
+      const pdfBytes = await pdfDoc.save();
+      const file = new File([pdfBytes as BlobPart], "test.pdf", {
+        type: "application/pdf",
+      });
+
+      act(() => {
+        result.current.addPagesFromFiles([file]);
+      });
+
+      await waitFor(() => {
+        expect(result.current.selectedPages.length).toBe(2);
+      });
+
+      let mergePromise: Promise<void> = Promise.resolve();
+      act(() => {
+        mergePromise = result.current.mergePages();
+      });
+
+      act(() => {
+        result.current.resetAll();
+      });
+
+      await act(async () => {
+        resolveMerge(pdfBytes);
+        await mergePromise;
+      });
+
+      expect(result.current.mergedUrl).toBeNull();
+      mergeSpy.mockRestore();
+    });
   });
 });
