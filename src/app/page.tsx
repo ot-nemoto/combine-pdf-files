@@ -39,6 +39,7 @@ export default function Home() {
     }
     resetAll();
     setOutputFileName("merged");
+    // biome-ignore lint/style/noNonNullAssertion: フォームは常に描画されており inputRef.current は必ず non-null
     inputRef.current!.value = "";
   }
 
