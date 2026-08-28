@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   createPdfBlobUrl,
   mergePdfPages,
@@ -18,6 +18,7 @@ export function usePdfPages() {
   const [isMerging, setIsMerging] = useState(false);
   const [mergedUrl, setMergedUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const generationRef = useRef(0);
 
   useEffect(() => {
     return () => {
@@ -28,11 +29,13 @@ export function usePdfPages() {
   const addPagesFromFiles = useCallback((files: File[]) => {
     setError(null);
     setMergedUrl(null);
+    const generation = generationRef.current;
 
     for (const file of files) {
       (async () => {
         try {
           const pages = await splitPdfIntoPages(file);
+          if (generationRef.current !== generation) return;
 
           setSelectedPages((prev) => [
             ...prev,
@@ -46,6 +49,7 @@ export function usePdfPages() {
           ]);
         } catch (err) {
           console.error(`Failed to process PDF ${file.name}:`, err);
+          if (generationRef.current !== generation) return;
           setError(`Failed to process ${file.name}`);
         }
       })();
@@ -118,12 +122,20 @@ export function usePdfPages() {
     });
   }, []);
 
+  const resetAll = useCallback(() => {
+    generationRef.current += 1;
+    setSelectedPages([]);
+    setMergedUrl(null);
+    setError(null);
+  }, []);
+
   const mergePages = useCallback(async () => {
     if (selectedPages.length < 2) {
       setError("2つ以上のページを選択してください。");
       return;
     }
 
+    const generation = generationRef.current;
     setIsMerging(true);
     setError(null);
     setMergedUrl(null);
@@ -135,12 +147,15 @@ export function usePdfPages() {
           rotation: page.rotation,
         })),
       );
+      if (generationRef.current !== generation) return;
 
       const url = createPdfBlobUrl(mergedBytes);
       setMergedUrl(url);
     } catch (err) {
       console.error(err);
-      setError("PDFの結合に失敗しました。ファイルを確認してください。");
+      if (generationRef.current === generation) {
+        setError("PDFの結合に失敗しました。ファイルを確認してください。");
+      }
     } finally {
       setIsMerging(false);
     }
@@ -159,5 +174,6 @@ export function usePdfPages() {
     rotatePageClockwise,
     rotatePageCounterClockwise,
     mergePages,
+    resetAll,
   };
 }
