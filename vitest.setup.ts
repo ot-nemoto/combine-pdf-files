@@ -1,13 +1,14 @@
 import "@testing-library/jest-dom/vitest";
 
-// jsdom does not implement URL.createObjectURL / revokeObjectURL
+// jsdom's URL.createObjectURL (via vitest's jsdom-compat shim) tries to read an
+// internal Blob symbol via `Object.getOwnPropertySymbols(new window.Blob())[0]`.
+// jsdom's Blob no longer exposes that symbol, so the shim throws
+// "Cannot read properties of undefined (reading '_bytes')". Tests don't need
+// real Blob URL semantics, so always use a simple mock instead of relying on
+// that (currently broken) native/compat implementation.
 let blobUrlCounter = 0;
-if (typeof URL.createObjectURL === "undefined") {
-  URL.createObjectURL = () => `blob:mock-url-${++blobUrlCounter}`;
-}
-if (typeof URL.revokeObjectURL === "undefined") {
-  URL.revokeObjectURL = () => {};
-}
+URL.createObjectURL = () => `blob:mock-url-${++blobUrlCounter}`;
+URL.revokeObjectURL = () => {};
 
 // jsdom's File/Blob may not implement arrayBuffer(); polyfill it
 if (!File.prototype.arrayBuffer) {
