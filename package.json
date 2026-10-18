@@ -1,6 +1,6 @@
 {
   "name": "combine-pdf-files",
-  "version": "0.4.12",
+  "version": "0.4.13",
   "private": true,
   "scripts": {
     "prepare": "biome migrate --write",
@@ -15,7 +15,7 @@
     "test:coverage": "vitest --coverage"
   },
   "dependencies": {
-    "next": "16.3.8",
+    "next": "16.4.0",
     "pdf-lib": "^1.17.1",
     "react": "19.3.0",
     "react-dom": "19.3.0"
