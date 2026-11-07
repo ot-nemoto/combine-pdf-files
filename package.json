@@ -1,6 +1,6 @@
 {
   "name": "combine-pdf-files",
-  "version": "0.4.17",
+  "version": "0.4.18",
   "private": true,
   "scripts": {
     "prepare": "biome migrate --write",
@@ -21,7 +21,7 @@
     "react-dom": "19.3.1"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.6.2",
+    "@biomejs/biome": "2.6.4",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",
